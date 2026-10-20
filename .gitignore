@@ -1,0 +1,20 @@
+# Keep only the marker in the class folders; do not version their images or data.
+/Modelo/AGUACATESANOS/*
+!/Modelo/AGUACATESANOS/.gitkeep
+/Modelo/ANTRACNOSIS/*
+!/Modelo/ANTRACNOSIS/.gitkeep
+/Modelo/PEDUNCULO/*
+!/Modelo/PEDUNCULO/.gitkeep
+
+# Ignore image files in PORCLASIFICAR, including nested folders.
+/Modelo/PORCLASIFICAR/**/*.[jJ][pP][gG]
+/Modelo/PORCLASIFICAR/**/*.[jJ][pP][eE][gG]
+/Modelo/PORCLASIFICAR/**/*.[pP][nN][gG]
+/Modelo/PORCLASIFICAR/**/*.[bB][mM][pP]
+/Modelo/PORCLASIFICAR/**/*.[gG][iI][fF]
+/Modelo/PORCLASIFICAR/**/*.[tT][iI][fF]
+/Modelo/PORCLASIFICAR/**/*.[tT][iI][fF][fF]
+/Modelo/PORCLASIFICAR/**/*.[wW][eE][bB][pP]
+/Modelo/PORCLASIFICAR/**/*.[hH][eE][iI][cC]
+/Modelo/PORCLASIFICAR/**/*.[aA][vV][iI][fF]
+/Modelo/PORCLASIFICAR/**/*.[jJ][fF][iI][fF]
