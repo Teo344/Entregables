@@ -18,3 +18,8 @@
 /Modelo/PORCLASIFICAR/**/*.[hH][eE][iI][cC]
 /Modelo/PORCLASIFICAR/**/*.[aA][vV][iI][fF]
 /Modelo/PORCLASIFICAR/**/*.[jJ][fF][iI][fF]
+
+# speckit-metricas: estado de sesion local y salidas regenerables
+metricas/.sesion-activa.json
+metricas/.ultima-actividad
+metricas/salidas/
