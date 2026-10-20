@@ -1,0 +1,95 @@
+installed:
+- metricas
+settings:
+  auto_execute_hooks: true
+hooks:
+  before_constitution:
+  - extension: metricas
+    command: speckit.metricas.sesion
+    enabled: true
+    optional: false
+    priority: 10
+    prompt: Execute speckit.metricas.sesion?
+    description: Registrar sesion de la fase constitucion
+    condition: null
+  before_specify:
+  - extension: metricas
+    command: speckit.metricas.sesion
+    enabled: true
+    optional: false
+    priority: 10
+    prompt: Execute speckit.metricas.sesion?
+    description: Registrar sesion de la fase especificar
+    condition: null
+  before_clarify:
+  - extension: metricas
+    command: speckit.metricas.sesion
+    enabled: true
+    optional: false
+    priority: 10
+    prompt: Execute speckit.metricas.sesion?
+    description: Registrar sesion de la fase aclarar
+    condition: null
+  before_plan:
+  - extension: metricas
+    command: speckit.metricas.sesion
+    enabled: true
+    optional: false
+    priority: 10
+    prompt: Execute speckit.metricas.sesion?
+    description: Registrar sesion de la fase planificar
+    condition: null
+  before_tasks:
+  - extension: metricas
+    command: speckit.metricas.sesion
+    enabled: true
+    optional: false
+    priority: 10
+    prompt: Execute speckit.metricas.sesion?
+    description: Registrar sesion de la fase tareas
+    condition: null
+  after_tasks:
+  - extension: metricas
+    command: speckit.metricas.puntos
+    enabled: true
+    optional: false
+    priority: 10
+    prompt: Execute speckit.metricas.puntos?
+    description: Fijar la linea base de Puntos de Tarea SDD del plan
+    condition: null
+  before_analyze:
+  - extension: metricas
+    command: speckit.metricas.sesion
+    enabled: true
+    optional: false
+    priority: 10
+    prompt: Execute speckit.metricas.sesion?
+    description: Registrar sesion de la fase analizar
+    condition: null
+  before_checklist:
+  - extension: metricas
+    command: speckit.metricas.sesion
+    enabled: true
+    optional: false
+    priority: 10
+    prompt: Execute speckit.metricas.sesion?
+    description: Registrar sesion de la fase analizar (checklist)
+    condition: null
+  before_implement:
+  - extension: metricas
+    command: speckit.metricas.sesion
+    enabled: true
+    optional: false
+    priority: 10
+    prompt: Execute speckit.metricas.sesion?
+    description: Registrar sesion de la fase implementar
+    condition: null
+  after_implement:
+  - extension: metricas
+    command: speckit.metricas.cerrar
+    enabled: true
+    optional: true
+    priority: 10
+    prompt: Cerrar la sesion de implementacion y registrar las lineas generadas?
+    description: Cerrar la sesion de implementacion
+    condition: null

@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "extensions": {
+    "metricas": {
+      "version": "0.3.0",
+      "source": "local",
+      "manifest_hash": "sha256:5c8c1688bc41b302ee5ba443e0e7c2cc6c416b48df27d5457859e746281c2f5b",
+      "enabled": true,
+      "priority": 10,
+      "registered_commands": {
+        "codex": [
+          "speckit.metricas.inicializar",
+          "speckit.metricas.sesion",
+          "speckit.metricas.cerrar",
+          "speckit.metricas.pausetask",
+          "speckit.metricas.resumetask",
+          "speckit.metricas.puntos",
+          "speckit.metricas.recolectar",
+          "speckit.metricas.exportar",
+          "speckit.metricas.calibrar",
+          "speckit.metricas.estimar"
+        ]
+      },
+      "registered_skills": [],
+      "installed_at": "2026-10-20T15:06:40.243001+00:00"
+    }
+  }
+}
