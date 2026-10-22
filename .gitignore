@@ -19,6 +19,8 @@
 /Modelo/PORCLASIFICAR/**/*.[aA][vV][iI][fF]
 /Modelo/PORCLASIFICAR/**/*.[jJ][fF][iI][fF]
 
+Modelo/PORCLASIFICAR/Drive/*.zip
+
 # speckit-metricas: estado de sesion local y salidas regenerables
 metricas/.sesion-activa.json
 metricas/.ultima-actividad
