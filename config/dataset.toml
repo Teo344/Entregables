@@ -10,17 +10,16 @@ val = 0.15
 test = 0.15
 
 # Cuotas por fuente dentro de cada clase (claves = columna `fuente` de fuentes.csv).
+# Revisión 2026-10-26: avocare_ excluida (copias aumentadas; ver datos/curacion/exclusiones_revision.csv).
 [cuotas.sano]
 mdpi_pedunculo_sano = 360
-avocare_sano = 209
+hass = 396          # una foto por fruto: los 396 frutos de la serie
 rgb_sano = 83
-hass = 280
-sano_web = 68
+sano_web = 161
 
 [cuotas.antracnosis]
-avocare_antracnosis = 183
-rgb_antracnosis = 367
-kaggle_antracnosis = 450
+rgb_antracnosis = 664      # todas
+kaggle_antracnosis = 336   # 734 fotos con lesión visible de ~150 frutos (5-7 vistas por fruto)
 
 [cuotas.pedunculo]
 mdpi_pedunculo = 284

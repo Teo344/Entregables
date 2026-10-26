@@ -60,6 +60,8 @@ Las filas se ordenan por `ruta`.
                 ┌──────────────── archivo inválido ──────────────► excluida_invalida
 archivo ───────►│──────────────── mismo SHA en 2 clases ─────────► excluida_conflicto
 leído           │──────────────── copia no canónica ─────────────► duplicada
+                │──────────────── en exclusiones_revision.csv ───► excluida_revision
+                │                  (salvo aceptada por el experto)
                 └──► canónica ──── experto: rechazada o mixto ───► rechazada
                                 ── fuente de prueba de campo ────► test_campo
                                 ── licencia o validación pend. ──► provisional
@@ -135,17 +137,15 @@ semilla = 42
 proporciones = { train = 0.70, val = 0.15, test = 0.15 }
 max_por_clase = 1000
 
-[cuotas.sano]          # suma 1000
+[cuotas.sano]          # suma 1000 (revisión 3)
 mdpi_pedunculo_sano = 360
-avocare_sano = 209
+hass = 396
 rgb_sano = 83
-hass = 280
-sano_web = 68
+sano_web = 161
 
-[cuotas.antracnosis]   # suma 1000
-avocare_antracnosis = 183
-rgb_antracnosis = 367
-kaggle_antracnosis = 450
+[cuotas.antracnosis]   # suma 1000 (revisión 3)
+rgb_antracnosis = 664
+kaggle_antracnosis = 336
 
 [cuotas.pedunculo]     # sin tope: todas
 mdpi_pedunculo = 284

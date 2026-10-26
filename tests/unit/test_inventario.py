@@ -93,6 +93,24 @@ def test_decisiones_del_experto(arbol):
     assert meta["decisiones_ausentes"] == ["ffffffffffffffff"]
 
 
+def test_exclusion_por_revision_y_el_experto_prevalece(arbol):
+    arbol.agregar("ANTRACNOSIS/Avocado 0001.jpg")
+    arbol.agregar("ANTRACNOSIS/Avocado 0002.jpg")
+    escribir_csv(os.path.join(arbol.salida, "curacion", "exclusiones_revision.csv"), ["ruta", "motivo", "detalle"],
+                 [{"ruta": "ANTRACNOSIS/Avocado 0001.jpg", "motivo": "sin_lesion_visible", "detalle": "0.10 %"},
+                  {"ruta": "ANTRACNOSIS/Avocado 0002.jpg", "motivo": "sin_lesion_visible", "detalle": "0.20 %"}])
+    f = _por_ruta(_ejecutar(arbol)[0])
+    assert f["ANTRACNOSIS/Avocado 0001.jpg"]["estado"] == "excluida_revision"
+    assert f["ANTRACNOSIS/Avocado 0001.jpg"]["motivo"] == "0.10 %"
+    escribir_csv(os.path.join(arbol.salida, "validacion", "decisiones.csv"),
+                 ["id_contenido", "decision", "validador", "fecha"],
+                 [{"id_contenido": f["ANTRACNOSIS/Avocado 0002.jpg"]["id_contenido"], "decision": "aceptada",
+                   "validador": "e", "fecha": "2026-10-26"}])
+    f = _por_ruta(_ejecutar(arbol)[0])
+    assert f["ANTRACNOSIS/Avocado 0001.jpg"]["estado"] == "excluida_revision"
+    assert f["ANTRACNOSIS/Avocado 0002.jpg"]["estado"] == "provisional"  # aceptada; licencia pendiente
+
+
 def test_idempotente_y_no_modifica_originales(arbol_completo):
     arbol = arbol_completo
     antes = {}

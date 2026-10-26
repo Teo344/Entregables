@@ -90,6 +90,8 @@ Muestra de propiedades (1 de cada 5 imágenes):
 - **Cuotas iniciales**:
   - **Sano:** MDPI 360, `avocare_` 209, `rgb_sano_` 83, `hass_` 280 y `sano-` 68.
   - **Antracnosis:** `avocare_` 183, `rgb_antracnosis_` 367 y Kaggle 450.
+  - Reemplazadas en la revisión 3 (D14): sano = MDPI 360, `hass_` 396, `rgb_sano_` 83, `sano-` 161;
+    antracnosis = `rgb_antracnosis_` 664, Kaggle 336.
   - **Pedúnculo:** sin tope (284).
 - **Alternatives considered**:
   - Muestreo aleatorio estratificado solo por clase: reproduce el sesgo de fuente actual (55 % de
@@ -174,3 +176,27 @@ Muestra de propiedades (1 de cada 5 imágenes):
   `PROCESADO/test_campo/<clase>/`.
 - **Rationale**: es la mejor evidencia de generalización (corrección C10) y no debe contaminarse
   con entrenamiento.
+
+### D14. Revisión 3: exclusión de fuentes y vistas del mismo fruto (2026-10-26)
+
+- **Hallazgos** (revisión visual del conjunto provisional, a raíz de `Avocado 2022`, que parecía
+  sana en `train/antracnosis`):
+  - El CSV de Kaggle es coherente (3 983 filas; `Condition` coincide con sus marcas 0/1) y la copia
+    fue fiel: las 1 022 fotos Kaggle de `ANTRACNOSIS` están etiquetadas "Anthracnose" por nombre y
+    contenido. El problema es de la etiqueta de origen: 288 tienen ≤ 0.5 % de superficie manchada.
+  - `avocare_` (392 fotos) son copias aumentadas de pocas escenas: 27 grupos de copias estaban
+    repartidos entre train y val/test, y 5 escenas aparecían en sano y en antracnosis.
+  - Kaggle fotografía cada fruto desde 5 a 7 lados: 734 fotos con lesión visible = ~150 frutos.
+- **Decision**: excluir `avocare_` completa y las 288 Kaggle sin lesión visible
+  (`scripts/curacion/marcar_exclusiones.py` → `exclusiones_revision.csv`, estado
+  `excluida_revision`; la aceptación del experto prevalece). Agrupar vistas del mismo fruto con un
+  dHash 16 × 16 del fruto recortado, comparado también girado 90/180/270° y volteado, distancia ≤ 10
+  (`scripts/curacion/agrupar_similares.py` → `grupos_similitud.csv`): 100 grupos Kaggle con 686
+  fotos, estables entre umbrales 8–12.
+- **Rationale**: copias o vistas del mismo fruto en train y test inflan las métricas (principio II).
+  Una exclusión registrada y reversible respeta la decisión final del experto sobre la etiqueta.
+- **Verificación**: tras regenerar, 0 pares casi idénticos (con giros y volteos, distancia ≤ 12)
+  entre conjuntos distintos y 0 grupos repartidos.
+- **Alternatives considered**: agrupar las variantes de `avocare_` en lugar de excluirla (la
+  similitud por color confunde fondos planos y las etiquetas de la fuente también eran dudosas);
+  mantener las Kaggle dudosas solo marcadas (dejaría ruido de etiqueta en train y test).

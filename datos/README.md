@@ -51,10 +51,15 @@ La configuración está en [`config/dataset.toml`](../config/dataset.toml) (semi
 preprocesamiento, aumento) y [`config/fuentes.csv`](../config/fuentes.csv) (fuentes, licencias,
 grupos).
 
-## Estado al 2026-10-25
+## Estado al 2026-10-26
 
-- **Partición provisional**: 2 284 imágenes, con train 1 599, val 343 y test 342. Detalle en
-  [informe.md](informe.md).
+- **Partición provisional (revisión 3, 2026-10-26)**: 2 284 imágenes, con train 1 599, val 344 y
+  test 341. Detalle en [informe.md](informe.md).
+- **Excluidas por revisión**: 680 imágenes (`curacion/exclusiones_revision.csv`). Son toda la fuente
+  `avocare_` (copias aumentadas) y 288 fotos Kaggle etiquetadas como antracnosis sin lesión visible.
+- **Vistas del mismo fruto agrupadas**: Kaggle fotografía cada fruto desde 5 a 7 lados; esas vistas
+  van siempre al mismo conjunto (`curacion/grupos_similitud.csv`). Con giros y volteos, quedan 0
+  pares casi idénticos entre conjuntos distintos.
 - **Validación del experto**: pendiente para las 2 284 imágenes de la muestra (`planilla`).
 - **Licencias**: las 9 fuentes tienen la licencia `pendiente` en `config/fuentes.csv` (tarea T037).
 - Mientras la partición sea provisional, **ninguna métrica reportada en la tesis puede salir de
@@ -70,8 +75,7 @@ Se revisó una hoja de contactos con 8 imágenes por clase de `train` y de `test
 
 Para la revisión del experto:
 
-- Algunas imágenes de la fuente `avocare_` vienen giradas en origen, con esquinas negras. Parecen
-  copias aumentadas del repositorio original; conviene confirmar que no son variantes de una misma
-  foto.
+- La fuente `avocare_` resultó ser copias aumentadas de pocas escenas y se excluyó en la revisión 3
+  (2026-10-26).
 - Hay fotos de laboratorio con carteles escritos dentro de la imagen, un posible atajo visual.
-- El preprocesamiento marcó 98 imágenes como borrosas y 10 como oscuras (`advertencias.csv`).
+- El preprocesamiento marca 101 imágenes como borrosas y 1 con proporción extrema (`advertencias.csv`, revisión 3).

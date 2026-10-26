@@ -33,6 +33,21 @@ def test_hass_y_sin_regla():
     assert g["S/sano-0001.jpg"] == "i4"
 
 
+def test_inventario_une_grupos_de_similitud(arbol):
+    import os
+    from avocadoia_datos import inventario
+    from avocadoia_datos.es_csv import escribir_csv
+    for i in range(3):
+        arbol.agregar(f"ANTRACNOSIS/Avocado {i:04d}.jpg")
+    escribir_csv(os.path.join(arbol.salida, "curacion", "grupos_similitud.csv"), ["grupo", "ruta"],
+                 [{"grupo": "S0001", "ruta": "ANTRACNOSIS/Avocado 0000.jpg"},
+                  {"grupo": "S0001", "ruta": "ANTRACNOSIS/Avocado 0002.jpg"}])
+    filas, _ = inventario.ejecutar(arbol.config(), arbol.modelo, arbol.salida, arbol.confirmados())
+    g = {f["ruta"]: f["grupo"] for f in filas}
+    assert g["ANTRACNOSIS/Avocado 0000.jpg"] == g["ANTRACNOSIS/Avocado 0002.jpg"]
+    assert g["ANTRACNOSIS/Avocado 0001.jpg"] != g["ANTRACNOSIS/Avocado 0000.jpg"]
+
+
 def test_copias_exactas_comparten_grupo():
     filas = [_fila("S/a.jpg", "mismo"), _fila("S/b.jpg", "mismo")]
     g = grupos.asignar_grupos(filas, {})

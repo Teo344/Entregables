@@ -66,13 +66,21 @@ def ultimas_decisiones(ruta_decisiones):
     return {k: v[1] for k, v in ultimas.items()}
 
 
-def _estado(fila, fuente, decision):
+def cargar_exclusiones(ruta):
+    """{ruta: detalle} desde datos/curacion/exclusiones_revision.csv (si existe)."""
+    return {f["ruta"]: f.get("detalle") or f.get("motivo", "") for f in leer_csv(ruta)}
+
+
+def _estado(fila, fuente, decision, exclusion):
     if fila["formato"] == "":
         return "excluida_invalida", "No se puede decodificar la imagen"
     if fila["_conflicto"]:
         return "excluida_conflicto", "El mismo contenido aparece en clases distintas"
     if fila["canonica"] == "no":
         return "duplicada", f"Copia exacta de {fila['duplicado_de']}"
+    # La decisión del experto prevalece sobre la exclusión por revisión.
+    if exclusion is not None and decision not in ("aceptada", "reasignada"):
+        return "excluida_revision", exclusion
     if decision in ("rechazada", "mixto"):
         return "rechazada", f"Experto: {decision}"
     if fuente is not None and fuente.rol == "test_campo":
@@ -128,7 +136,14 @@ def construir(config, raiz_imagenes, salida, ruta_confirmados):
             fila["canonica"] = "si" if fila is canonica else "no"
             fila["duplicado_de"] = "" if fila is canonica else canonica["ruta"]
 
-    grupo_de = grupos.asignar_grupos(filas, grupos.cargar_confirmados(ruta_confirmados))
+    curacion = os.path.dirname(ruta_confirmados)
+    confirmados = grupos.cargar_confirmados(ruta_confirmados)
+    # Grupos por similitud (mismo fruto fotografiado desde varios lados), generados por
+    # scripts/curacion/agrupar_similares.py; se prefijan para no chocar con los confirmados.
+    for clave, rutas in grupos.cargar_confirmados(os.path.join(curacion, "grupos_similitud.csv")).items():
+        confirmados[f"sim:{clave}"] = rutas
+    grupo_de = grupos.asignar_grupos(filas, confirmados)
+    exclusiones = cargar_exclusiones(os.path.join(curacion, "exclusiones_revision.csv"))
 
     for fila in filas:
         decision = decisiones.get(fila["id_contenido"])
@@ -137,7 +152,7 @@ def construir(config, raiz_imagenes, salida, ruta_confirmados):
         nueva = (decision or {}).get("clase_nueva", "")
         fila["clase_efectiva"] = nueva if tipo == "reasignada" and nueva in CLASES else fila["clase_propuesta"]
         fila["grupo"] = grupo_de[fila["ruta"]]
-        fila["estado"], fila["motivo"] = _estado(fila, fila["_fuente"], tipo)
+        fila["estado"], fila["motivo"] = _estado(fila, fila["_fuente"], tipo, exclusiones.get(fila["ruta"]))
         fila["en_muestra"] = previas.get(fila["ruta"], "no") if fila["estado"] in ("elegible", "provisional") else "no"
 
     filas.sort(key=lambda f: f["ruta"])

@@ -56,3 +56,18 @@ aparezcan en ambas clases y el modelo no aprenda "pedúnculo en primer plano = e
 - Kaggle "Healthy" (1 764) sigue en `PORCLASIFICAR`; todo el Kaggle "sin fondo" de las carpetas es
   antracnosis, un posible atajo que se vigilará en OE3 (métricas por fuente y Grad-CAM++).
 - Borrar `PORCLASIFICAR/` y `RETIRADAS/` cuando el conjunto esté aprobado.
+
+## Revisión 3 (2026-10-26): exclusiones y vistas del mismo fruto
+
+Origen: en `train/antracnosis` apareció `Avocado 2022.jpg` con aspecto sano. El CSV de Kaggle es
+coherente y la etiqueta "Anthracnose" vino de la fuente, no de la copia. La revisión encontró tres
+problemas de origen:
+
+| Archivo | Script | Contenido |
+|---|---|---|
+| [exclusiones_revision.csv](exclusiones_revision.csv) | `scripts/curacion/marcar_exclusiones.py` | 680 exclusiones: `avocare_` completa (209 sanas + 183 antracnosis, copias aumentadas de pocas escenas) y 288 Kaggle "Anthracnose" con ≤ 0.5 % de superficie manchada |
+| [grupos_similitud.csv](grupos_similitud.csv) | `scripts/curacion/agrupar_similares.py` | 102 grupos de vistas del mismo fruto (100 de Kaggle con 686 fotos), por dHash del fruto con giros y volteos |
+| [casi_duplicados_confirmados.csv](casi_duplicados_confirmados.csv) | (manual) | Grupo G027 agregado: dos tomas idénticas de `rgb_antracnosis_` |
+
+Nada se movió ni se borró. El pipeline marca las exclusiones como `excluida_revision`, y si el
+experto acepta una de esas imágenes, su decisión prevalece.

@@ -1,7 +1,7 @@
 {
   "advertencias": {
-    "borrosa": 98,
-    "oscura": 10
+    "aspecto": 1,
+    "borrosa": 101
   },
   "archivos_por_clase": {
     "antracnosis": 1869,
@@ -21,10 +21,10 @@
   },
   "conteos": {
     "antracnosis": {
-      "test": 150,
+      "test": 149,
       "test_campo": 0,
       "train": 700,
-      "val": 150
+      "val": 151
     },
     "pedunculo": {
       "test": 42,
@@ -41,20 +41,15 @@
   },
   "conteos_por_fuente": {
     "antracnosis": {
-      "avocare_antracnosis": {
-        "test": 27,
-        "train": 128,
-        "val": 28
-      },
       "kaggle_antracnosis": {
-        "test": 68,
-        "train": 315,
-        "val": 67
+        "test": 49,
+        "train": 235,
+        "val": 52
       },
       "rgb_antracnosis": {
-        "test": 55,
-        "train": 257,
-        "val": 55
+        "test": 100,
+        "train": 465,
+        "val": 99
       }
     },
     "pedunculo": {
@@ -65,15 +60,10 @@
       }
     },
     "sano": {
-      "avocare_sano": {
-        "test": 31,
-        "train": 146,
-        "val": 32
-      },
       "hass": {
-        "test": 42,
-        "train": 196,
-        "val": 42
+        "test": 59,
+        "train": 277,
+        "val": 60
       },
       "mdpi_pedunculo_sano": {
         "test": 54,
@@ -86,20 +76,21 @@
         "val": 12
       },
       "sano_web": {
-        "test": 10,
-        "train": 48,
-        "val": 10
+        "test": 24,
+        "train": 113,
+        "val": 24
       }
     }
   },
   "decisiones_ausentes": 0,
   "estado_particion": "provisional",
   "estados_manifiesto": {
-    "provisional": 4626
+    "excluida_revision": 680,
+    "provisional": 3946
   },
   "faltantes_cuota": {},
-  "generado": "2026-10-25T22:01:08",
-  "huella_particion": "3bf5426867e8a254680a214e03c34932016d049d076b69142b50e054e5ada2fd",
+  "generado": "2026-10-26T08:36:37",
+  "huella_particion": "001e3a7c62a6d3acbb013a7de37ee1aac8a08b6a32b75775d232636ffbfb02a7",
   "licencia_pendiente_muestra": 2284,
   "pesos_clase": {
     "antracnosis": 0.7614,
@@ -117,21 +108,20 @@
   "razon_desbalance": 3.52,
   "reserva": {
     "antracnosis": {
-      "kaggle_antracnosis": 572,
-      "rgb_antracnosis": 297
+      "kaggle_antracnosis": 398
     },
     "sano": {
-      "hass": 1310,
-      "sano_web": 163
+      "hass": 1194,
+      "sano_web": 70
     }
   },
   "semilla": 42,
   "totales_particion": {
-    "test": 342,
+    "test": 341,
     "test_campo": 0,
     "train": 1599,
-    "val": 343
+    "val": 344
   },
   "validacion_pendiente_muestra": 2284,
-  "version_config": "be4174845ad7c817524bf03fc30be70aaa8b131eed0411891ef2996adde00f50"
+  "version_config": "2b510c34d9c505a536c414cb1af14318ea6dfbe217e8c312a52c7e983f881a78"
 }

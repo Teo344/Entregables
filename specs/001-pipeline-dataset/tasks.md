@@ -201,6 +201,9 @@ Proyecto único en la raíz de `Entregables`: `src/avocadoia_datos/`, `tests/`, 
 - [X] T034 [P] Revisar visualmente una hoja de contactos de `Modelo/PROCESADO/` (orientación, recorte, color) y anotar el resultado en `datos/README.md` (el informe se regenera)
 - [X] T035 [P] Escribir `datos/README.md`: cómo regenerar el conjunto, qué carpeta usa cada fase de la tesis (train, val y test en `PROCESADO/`) y qué se versiona
 - [X] T036 Ejecutar la validación de `specs/001-pipeline-dataset/quickstart.md` (§1–§3, §5–§6), medir los tiempos de `inventario` (objetivo < 5 min) y `preprocesar` (objetivo < 10 min) y registrar los resultados
+- [X] T038 [US1] Revisión 3: generar `datos/curacion/exclusiones_revision.csv` con `scripts/curacion/marcar_exclusiones.py` (avocare_ completa + Kaggle con ≤ 0.5 % de manchas) y leerla en `src/avocadoia_datos/inventario.py` como estado `excluida_revision`, con prueba en `tests/unit/test_inventario.py`
+- [X] T039 [US1] Revisión 3: agrupar vistas del mismo fruto con `scripts/curacion/agrupar_similares.py` → `datos/curacion/grupos_similitud.csv`, unirlas en `src/avocadoia_datos/inventario.py`, con prueba en `tests/unit/test_grupos.py`
+- [X] T040 Revisión 3: nuevas cuotas en `config/dataset.toml`, regenerar con `python -m avocadoia_datos todo` y verificar 0 pares casi idénticos entre conjuntos
 - [ ] T037 Documentar origen, referencia y licencia de cada fuente en `config/fuentes.csv` (requiere información del equipo); sin esto la partición no puede marcarse `definitiva`
 
 ---

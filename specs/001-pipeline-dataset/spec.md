@@ -331,14 +331,26 @@ cuadra con el manifiesto.
   experto.
 - La curación del 2026-10-25 (`scripts/curacion/organizar_clases.py`) ya se aplicó; el pipeline
   parte de las carpetas resultantes y no repite esos retiros.
-- Cuotas iniciales de la muestra, ajustables en la configuración con justificación:
-  - **Sano (1 000):** pedúnculo sano MDPI 360, `avocare_` 209, `rgb_sano_` 83, `hass_` 280 (una
-    foto por fruto) y `sano-` 68.
-  - **Antracnosis (1 000):** `avocare_` 183, `rgb_antracnosis_` 367 y Kaggle 450. Se limita Kaggle
-    para que el fondo blanco no sea casi exclusivo de una clase.
+- Cuotas de la muestra (revisión 3, 2026-10-26), ajustables en la configuración con justificación:
+  - **Sano (1 000):** pedúnculo sano MDPI 360, `hass_` 396 (una foto por fruto), `rgb_sano_` 83 y
+    `sano-` 161.
+  - **Antracnosis (1 000):** `rgb_antracnosis_` 664 y Kaggle 336 (unas 2 vistas por fruto de sus
+    ~150 frutos). El fondo blanco de Kaggle baja al 34 % de la clase.
   - **Pedúnculo:** las 284.
-- La detección automática de casi duplicados ya se hizo en la curación; el pipeline solo usa la
-  lista confirmada para agrupar y no busca casi duplicados nuevos.
+- Revisión 3 (2026-10-26), tras la revisión visual del conjunto provisional:
+  - La fuente `avocare_` se excluye completa: son copias aumentadas (giros, recortes, zoom) de pocas
+    escenas, repartidas entre conjuntos y con escenas en ambas clases.
+  - Las fotos Kaggle etiquetadas "Anthracnose" con ≤ 0.5 % de superficie manchada (288) se apartan
+    como "sin lesión visible"; el CSV de Kaggle las declara antracnosis, así que el experto puede
+    devolverlas (su aceptación prevalece sobre la exclusión).
+  - Ambas exclusiones viven en `datos/curacion/exclusiones_revision.csv`; el inventario las marca
+    `excluida_revision`. No se mueve ni se borra ningún archivo.
+  - Kaggle fotografía cada fruto desde 5 a 7 lados sin identificador de fruto. Las vistas del mismo
+    fruto se agrupan por similitud visual robusta a giros (`datos/curacion/grupos_similitud.csv`) para
+    que no queden repartidas entre conjuntos.
+- La detección de casi duplicados y de vistas del mismo fruto se hace en scripts de curación
+  versionados; el pipeline solo lee sus listas (`casi_duplicados_confirmados.csv`,
+  `grupos_similitud.csv`) para agrupar.
 - El aumento de datos se aplica en línea durante el entrenamiento (OE3); aquí solo se fijan y
   documentan sus parámetros.
 - Las capturas de campo propias (OE2-A2, con el GAD de Sigchos) se registran como la fuente de

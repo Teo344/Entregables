@@ -1,14 +1,15 @@
 {
   "decisiones_ausentes": [],
-  "generado": "2026-10-25T22:02:34",
-  "grupos": 3432,
+  "generado": "2026-10-26T08:36:33",
+  "grupos": 2843,
   "por_clase": {
     "antracnosis": 1869,
     "pedunculo": 284,
     "sano": 2473
   },
   "por_estado": {
-    "provisional": 4626
+    "excluida_revision": 680,
+    "provisional": 3946
   },
   "por_fuente": {
     "avocare_antracnosis": 183,
@@ -23,5 +24,5 @@
   },
   "semilla": 42,
   "total_archivos": 4626,
-  "version_config": "be4174845ad7c817524bf03fc30be70aaa8b131eed0411891ef2996adde00f50"
+  "version_config": "2b510c34d9c505a536c414cb1af14318ea6dfbe217e8c312a52c7e983f881a78"
 }
