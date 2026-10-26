@@ -265,7 +265,8 @@ cuadra con el manifiesto.
   pedúnculo, clases 0 y 1) MUST conservarla.
 - **FR-018**: La partición MUST marcarse "provisional" mientras incluya imágenes no aceptadas por
   el experto o con licencia pendiente, y "definitiva" cuando todas estén aceptadas y con licencia
-  académica.
+  académica. La partición provisional solo sirve para desarrollar y depurar el entrenamiento:
+  ninguna métrica reportada en la tesis puede provenir de ella (constitución §II).
 - **FR-019**: El sistema MUST reservar una fuente de "prueba de campo" (fotos propias de Sigchos)
   que, si existe, se procesa solo como conjunto de prueba independiente (`test_campo`) y nunca
   entra en entrenamiento, validación ni en la muestra general.
@@ -285,7 +286,8 @@ cuadra con el manifiesto.
     en entrenamiento);
   - la tabla de parámetros de aumento.
 - **FR-023**: Todas las salidas (manifiesto, planilla, muestra, partición, informe) MUST registrar la
-  fecha de generación, la semilla y la versión de la configuración usada.
+  fecha de generación, la semilla y la versión de la configuración usada. En el manifiesto, estos
+  metadatos van en un archivo aparte para que el CSV sea idéntico entre ejecuciones (US1-6).
 
 ### Key Entities *(include if feature involves data)*
 

@@ -26,11 +26,11 @@ Proyecto único en la raíz de `Entregables`: `src/avocadoia_datos/`, `tests/`, 
 
 **Purpose**: inicializar el paquete y su configuración
 
-- [ ] T001 Crear `pyproject.toml` con el paquete `avocadoia_datos` (layout `src/`), `requires-python = ">=3.11"`, dependencias `Pillow>=12,<13` y `openpyxl>=3.1,<4`, extra `dev` con `pytest>=8`, y configuración `[tool.pytest.ini_options]` con `testpaths = ["tests"]`
+- [ ] T001 Crear `pyproject.toml` con el paquete `avocadoia_datos` (layout `src/`), `requires-python = ">=3.11"`, dependencias fijadas `Pillow==12.3.0` y `openpyxl==3.1.5`, extra `dev` con `pytest==8.4.2` (constitución §III), y configuración `[tool.pytest.ini_options]` con `testpaths = ["tests"]`
 - [ ] T002 [P] Crear `src/avocadoia_datos/__init__.py` y `src/avocadoia_datos/__main__.py` (llama a `cli.main()`)
 - [ ] T003 [P] Añadir al `.gitignore` las entradas `/Modelo/PROCESADO/`, `.venv/`, `__pycache__/`, `*.egg-info/` y `.pytest_cache/`
 - [ ] T004 [P] Crear `config/dataset.toml` con semilla 42, proporciones 0.70/0.15/0.15, `max_por_clase = 1000`, las cuotas por fuente de data-model.md (sano: mdpi_pedunculo_sano 360, avocare_sano 209, rgb_sano 83, hass 280, sano_web 68; antracnosis: avocare_antracnosis 183, rgb_antracnosis 367, kaggle_antracnosis 450; pedunculo: mdpi_pedunculo 284), preprocesamiento (224, calidad 95, brillo 40, borrosidad 50), aumento (±45°, 0.20, 0.20, volteos, brillo [0.8, 1.2]) y planilla (lote 250)
-- [ ] T005 [P] Crear `config/fuentes.csv` con las 9 fuentes de research.md, con las columnas `fuente,clase,patron,descripcion,referencia,licencia,uso_academico,particion_origen,regla_grupo,rol`. Usar licencia `pendiente` donde no se conozca, `particion_origen = si` y patrones `*/DRIVE_PARTICIONES_ARTICULO/*` para MDPI, y `regla_grupo = hass` para `hass_`
+- [ ] T005 [P] Crear `config/fuentes.csv` con las 9 fuentes de research.md, con las columnas `fuente,clase,patron,descripcion,referencia,licencia,uso_academico,particion_origen,regla_grupo,rol`. Usar licencia `pendiente` donde no se conozca, `particion_origen = si` y patrones `*/DRIVE_PARTICIONES_ARTICULO/*` para MDPI, y `regla_grupo = hass` para `hass_`; añadir además la fila `campo_sigchos` (patrón `CAMPO_SIGCHOS/*`, `rol = test_campo`)
 
 ---
 
@@ -69,7 +69,8 @@ Proyecto único en la raíz de `Entregables`: `src/avocadoia_datos/`, `tests/`, 
   - archivo corrupto → `excluida_invalida`;
   - dimensiones con EXIF aplicado (una imagen 200×100 con orientación 6 reporta 100×200);
   - `particion_origen` leída de la ruta;
-  - salida idéntica en dos ejecuciones.
+  - salida idéntica en dos ejecuciones;
+  - los originales conservan su SHA-256 y su fecha de modificación.
 - [ ] T013 [P] [US1] Escribir `tests/unit/test_grupos.py`:
   - `hass_T10_d01_041_a_*` y `hass_T10_d05_041_b_*` → grupo `hass:T10:041`;
   - `hass_T20_d01_041_*` en otro grupo;
@@ -86,7 +87,8 @@ Proyecto único en la raíz de `Entregables`: `src/avocadoia_datos/`, `tests/`, 
   - asignar canónica y duplicados, excluir conflictos e inválidas, y aplicar el grupo;
   - aplicar la última decisión de `datos/validacion/decisiones.csv`, si existe;
   - calcular el `estado` según la máquina de estados de data-model.md;
-  - escribir `datos/manifiesto.csv` ordenado por `ruta`, conservando `en_muestra` del manifiesto previo.
+  - escribir `datos/manifiesto.csv` ordenado por `ruta`, sin marcas de fecha (determinista), conservando `en_muestra` del manifiesto previo;
+  - escribir los metadatos (`generado`, `semilla`, `version_config`, totales) en `datos/manifiesto.json`.
 - [ ] T016 [US1] Conectar el subcomando `inventario` en `src/avocadoia_datos/cli.py`, con un resumen en stdout por estado, clase, fuente y número de grupos
 
 **Checkpoint**: manifiesto real generado y reproducible
@@ -198,7 +200,8 @@ Proyecto único en la raíz de `Entregables`: `src/avocadoia_datos/`, `tests/`, 
 - [ ] T033 Ejecutar `python -m avocadoia_datos todo` sobre las imágenes reales y versionar `datos/manifiesto.csv`, `datos/particion.csv`, `datos/particion.json`, `datos/informe.md`, `datos/informe.json` y `datos/advertencias.csv`
 - [ ] T034 [P] Revisar visualmente una hoja de contactos de `Modelo/PROCESADO/` (orientación, recorte, color) y anotar el resultado en `datos/informe.md`
 - [ ] T035 [P] Escribir `datos/README.md`: cómo regenerar el conjunto, qué carpeta usa cada fase de la tesis (train, val y test en `PROCESADO/`) y qué se versiona
-- [ ] T036 Ejecutar la validación de `specs/001-pipeline-dataset/quickstart.md` (§1–§3, §5–§6) y registrar los resultados
+- [ ] T036 Ejecutar la validación de `specs/001-pipeline-dataset/quickstart.md` (§1–§3, §5–§6), medir los tiempos de `inventario` (objetivo < 5 min) y `preprocesar` (objetivo < 10 min) y registrar los resultados
+- [ ] T037 Documentar origen, referencia y licencia de cada fuente en `config/fuentes.csv` (requiere información del equipo); sin esto la partición no puede marcarse `definitiva`
 
 ---
 
