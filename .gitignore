@@ -21,6 +21,9 @@
 
 Modelo/PORCLASIFICAR/Drive/*.zip
 
+# Imágenes retiradas durante la curación; su registro se versiona en datos/curacion/.
+/Modelo/RETIRADAS/
+
 
 
 # speckit-metricas: estado de sesion local y salidas regenerables
