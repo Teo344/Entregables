@@ -1,139 +1,176 @@
 # Research: Pipeline de construcción del conjunto de datos
 
-**Feature**: `001-pipeline-dataset` | **Date**: 2026-10-25
+**Feature**: `001-pipeline-dataset` | **Date**: 2026-10-25 (revisión 2)
 
-Hallazgos del relevamiento de `Modelo/` (2026-10-25) y decisiones técnicas que resuelven las
-incógnitas del contexto técnico.
+Hallazgos del relevamiento de `Modelo/` y decisiones técnicas que resuelven las incógnitas del
+contexto técnico. La curación previa está documentada en
+[datos/curacion/README.md](../../datos/curacion/README.md).
 
-## Relevamiento de las fuentes
+## Relevamiento (tras la curación del 2026-10-25)
 
-| Carpeta | Prefijo de archivo | Archivos | Observación |
-|---|---|---:|---|
-| `AGUACATESANOS` | `hass_` | 1 590 | Origen por documentar |
-| `AGUACATESANOS` | `sano_` | 1 000 | Origen por documentar (posible dataset de Herrera & Marín) |
-| `AGUACATESANOS` | `avocare_` | 209 | Repositorio "avocare" |
-| `AGUACATESANOS` | `rgb_sano_` | 83 | Nombre con hash; origen por documentar |
-| `ANTRACNOSIS` | `Avocado NNNN` | 1 022 | Kaggle; coincide con las 1 022 filas "Anthracnose" del CSV |
-| `ANTRACNOSIS` | `rgb_antracnosis_` | 668 | Origen por documentar |
-| `ANTRACNOSIS` | `avocare_` | 183 | Repositorio "avocare" |
-| `PEDUNCULO/DRIVE_PARTICIONES_ARTICULO` | `ring_<sha12>__` | 255 | Artículo MDPI *Computers* 15(8):513; train 182 / val 36 / test 37 |
-| `PEDUNCULO/DRIVE_CANDIDATAS` | `ring_<sha12>__` | 29 | Misma fuente, sin partición de origen |
-| `PORCLASIFICAR/Kaggle/...entrenamiento` | `Avocado NNNN` | 3 984 | Etiquetas en `Avocado labels 1.csv`: 1 764 Healthy, 1 022 Anthracnose, 1 197 Scab |
-| `PORCLASIFICAR/Kaggle/...evaluacin` | — | 101 | Sin etiquetas en el CSV |
+| Carpeta | Fuente (patrón) | Archivos | Partición de origen | Agrupación |
+|---|---|---:|---|---|
+| `AGUACATESANOS` | `hass_T<trat>_d<día>_<fruto>_<lado>_<estado>_<hash>` | 1 590 | — | 396 frutos (≈4 fotos por fruto) |
+| `AGUACATESANOS/DRIVE_PARTICIONES_ARTICULO` | Pedúnculo sano MDPI (clase 0) | 360 | 252 / 54 / 54 | — |
+| `AGUACATESANOS` | `sano-NNNN` | 231 | — | Casi duplicados confirmados |
+| `AGUACATESANOS` | `avocare_` | 209 | — | — |
+| `AGUACATESANOS` | `rgb_sano_` | 83 | — | — |
+| `ANTRACNOSIS` | Kaggle `Avocado NNNN` | 1 022 | — | Casi duplicados confirmados |
+| `ANTRACNOSIS` | `rgb_antracnosis_` | 664 | — | Casi duplicados confirmados |
+| `ANTRACNOSIS` | `avocare_` | 183 | — | — |
+| `PEDUNCULO/DRIVE_PARTICIONES_ARTICULO` | Ring-neck MDPI (clase 1) | 255 | 182 / 36 / 37 | — |
+| `PEDUNCULO/DRIVE_CANDIDATAS` | Ring-neck MDPI (clase 1) | 29 | — | — |
 
-Implicaciones:
+Muestra de propiedades (1 de cada 5 imágenes):
 
-- Las imágenes Kaggle de antracnosis ya están copiadas en `ANTRACNOSIS`; al incluir
-  `PORCLASIFICAR`, la deduplicación por SHA-256 las fusiona y solo se suman las "Healthy".
-- Cuatro orígenes no tienen fuente ni licencia documentadas: el registro de fuentes nace con
-  licencia `pendiente` y el equipo lo completa.
-- `drive_candidates.csv` ya contiene SHA-256, dimensiones, partición de origen y la exclusión por
-  conflicto de etiqueta; se reutiliza como entrada de la fuente de pedúnculo.
+- ~25 % de antracnosis tiene una etiqueta EXIF de rotación;
+- hay modos RGBA aislados;
+- en pedúnculo conviven tamaños de 1 500 × 1 500 y 3 072 × 4 080.
 
 ## Decisiones
 
 ### D1. Lenguaje y dependencias
 
-- **Decision**: Python ≥ 3.11 con biblioteca estándar (`hashlib`, `csv`, `json`, `tomllib`,
-  `random`) más Pillow (lectura y redimensionado) y openpyxl (planilla del experto). Pruebas con
-  pytest. Versiones fijadas en `pyproject.toml`.
-- **Rationale**: es el mismo lenguaje del entrenamiento (OE3) y basta para hashing, CSV y
-  redimensionado. No hace falta TensorFlow aquí, lo que permite ejecutar el pipeline en la versión
-  de Python instalada (3.14) sin esperar a que TensorFlow la soporte.
-- **Alternatives considered**: pandas (innecesario para unos 9 000 registros y añade una
-  dependencia pesada); notebook único (no es testeable ni reproducible por partes, contradice el
-  principio III).
+- **Decision**: Python ≥ 3.11 con la biblioteca estándar (`hashlib`, `csv`, `json`, `tomllib`,
+  `random`, `argparse`), más Pillow (imágenes) y openpyxl (planilla del experto). Las pruebas se
+  hacen con pytest. Las versiones se fijan en `pyproject.toml`.
+- **Rationale**: es el mismo lenguaje del entrenamiento (OE3) y basta para hashing, CSV e imágenes.
+  Sin TensorFlow, el pipeline corre en la versión de Python instalada (3.14).
+- **Alternatives considered**:
+  - pandas: innecesario para unas 5 000 filas y añade una dependencia pesada.
+  - Notebook único: no es testeable por partes y contradice el principio III.
 
 ### D2. Forma de la herramienta
 
 - **Decision**: paquete `avocadoia_datos` con una CLI por subcomandos (`inventario`, `planilla`,
-  `incorporar`, `particionar`, `preprocesar`, `informe`, `todo`). Configuración en
-  `config/dataset.toml`; registro de fuentes en `config/fuentes.csv`.
-- **Rationale**: cada historia de usuario es un subcomando probado de forma independiente; la
-  configuración versionada fija semilla, proporciones y parámetros (FR-021).
-- **Alternatives considered**: scripts sueltos (se duplica la lógica de carga del manifiesto).
+  `incorporar`, `particionar`, `preprocesar`, `informe`, `todo`). La configuración está en
+  `config/dataset.toml` y el registro de fuentes en `config/fuentes.csv`.
+- **Rationale**: cada historia de usuario es un subcomando que se prueba por separado, y la
+  configuración versionada fija semilla, cuotas y parámetros (FR-023).
 
 ### D3. Manifiesto derivado, decisiones acumuladas
 
-- **Decision**: el manifiesto (`datos/manifiesto.csv`) se **recalcula** en cada ejecución a partir
-  de las carpetas, `config/fuentes.csv` y `datos/validacion/decisiones.csv`. Las decisiones del
-  experto se acumulan en `decisiones.csv` (append-only, versionado); la planilla xlsx es solo el
-  vehículo de ida y vuelta.
-- **Rationale**: reejecutar sin cambios da un manifiesto idéntico (US1-5). Si una imagen
-  desaparece, su decisión persiste en `decisiones.csv` y el manifiesto la marca `ausente`.
-- **Alternatives considered**: editar el manifiesto a mano (se pierde la reproducibilidad).
+- **Decision**: el manifiesto se recalcula en cada ejecución a partir de las carpetas,
+  `config/fuentes.csv`, `datos/curacion/casi_duplicados_confirmados.csv` y
+  `datos/validacion/decisiones.csv`. Las decisiones se acumulan sin sobrescribirse en
+  `decisiones.csv`; la planilla xlsx solo sirve de ida y vuelta con el experto.
+- **Rationale**: reejecutar sin cambios da un manifiesto idéntico (US1-6), y ninguna decisión se
+  pierde aunque se regenere el manifiesto.
 
 ### D4. Identificadores y copia canónica
 
-- **Decision**: `id_contenido` = primeros 16 caracteres hexadecimales del SHA-256. Entre archivos
-  con el mismo contenido, la copia canónica es la de mayor prioridad de carpeta (carpetas de clase
-  > `PORCLASIFICAR`) y, a igualdad, la de ruta lexicográficamente menor.
-- **Rationale**: es determinista y estable entre ejecuciones; 16 hex (64 bits) no colisionan en
-  unos 10⁴ archivos.
-- **Alternatives considered**: hash perceptual (detecta casi-duplicados, pero está fuera del alcance
-  según la spec y da falsos positivos entre frutos parecidos).
+- **Decision**: `id_contenido` son los primeros 16 caracteres hexadecimales del SHA-256. Entre
+  copias exactas, la canónica es la de ruta lexicográficamente menor.
+- **Rationale**: es determinista; 64 bits no colisionan en unos 10⁴ archivos.
 
-### D5. Algoritmo de partición: estratificada con relleno de déficit
+### D5. Grupos
 
-- **Decision**: para cada clase se calculan las cuotas objetivo (70/15/15 del total elegible,
-  redondeo por mayor resto). Las imágenes con partición de origen la conservan (FR-015); las
-  libres se barajan con `random.Random(semilla)` sobre una lista ordenada por `id_contenido` y se
-  asignan para cubrir el déficit de cada partición frente a su cuota.
-- **Rationale**: sin particiones de origen se reduce a una partición estratificada clásica. Con
-  pedúnculo (182/36/37 fijas + 29 libres) se llega a 198/43/43 = 69.7/15.1/15.1 %, dentro de la
-  tolerancia de ±1 pp (SC-004). Ordenar antes de barajar garantiza el mismo resultado sin importar
-  el orden en que el sistema de archivos lista las imágenes (FR-013).
-- **Alternatives considered**: `train_test_split` de scikit-learn (no admite asignaciones fijas y
-  añade una dependencia); repartir las libres 70/15/15 por separado (daría 71.1 % de
-  entrenamiento para pedúnculo, fuera de la tolerancia).
+- **Decision**: `grupo` se calcula en este orden:
+  1. Regla de la fuente. En `hass_`, `hass:<tratamiento>:<fruto>` (p. ej. `hass:T10:041`): el
+     mismo fruto en distintos días y lados.
+  2. Unión con los grupos de casi duplicados confirmados (`G001`…), mediante union-find.
+  3. Si no aplica nada, el grupo es el propio `id_contenido`.
+- **Rationale**: dos fotos del mismo fruto, una en entrenamiento y otra en prueba, inflan la
+  exactitud. Es la fuga más común en datasets de frutos y la que el tribunal puede objetar.
+- **Alternatives considered**:
+  - Buscar casi duplicados en cada ejecución: lento, con falsos positivos en fondos blancos (se
+    verificó en la curación) y no determinista ante cambios de umbral.
 
-### D6. Elegibilidad y estado provisional
+### D6. Muestra por cuotas de fuente
 
-- **Decision**: una imagen es **elegible para la partición definitiva** si es canónica, no está
-  excluida, tiene licencia académica y está aceptada por el experto. La partición **provisional**
-  admite además imágenes `pendiente` de validación o de licencia, y lo declara en su cabecera y en
-  el informe.
-- **Rationale**: la validación del experto y la documentación de licencias llevarán semanas; sin
-  partición provisional OE3 no puede preparar su pipeline. La definitiva sigue exigiendo todo
-  (FR-011, FR-016). Esto precisa FR-011 de la spec: la exigencia de licencia aplica a la partición
-  definitiva.
-- **Alternatives considered**: bloquear hasta completar licencias (detiene el cronograma de
-  sprints).
+- **Decision**: para cada clase, cada fuente aporta como máximo su cuota (`[cuotas.<clase>]` en
+  `dataset.toml`). Dentro de la fuente, los grupos se ordenan por `grupo` y se barajan con
+  `random.Random(semilla)`. Primero se toma una imagen por grupo (elegida también con la semilla) y
+  solo si faltan se toman segundas fotos. Lo elegible que no entra es `reserva`. Las fuentes con
+  partición de origen y las que tienen menos imágenes que su cuota entran completas.
+- **Rationale**: el tope de 1 000 por clase lo decidió el equipo. Elegir por fuente evita que un
+  fondo (Kaggle blanco) o un tipo de imagen (web) quede asociado a una sola clase. Una foto por
+  grupo maximiza la variedad real (en `hass_`, 280 frutos distintos en lugar de 70 frutos × 4
+  fotos).
+- **Cuotas iniciales**:
+  - **Sano:** MDPI 360, `avocare_` 209, `rgb_sano_` 83, `hass_` 280 y `sano-` 68.
+  - **Antracnosis:** `avocare_` 183, `rgb_antracnosis_` 367 y Kaggle 450.
+  - **Pedúnculo:** sin tope (284).
+- **Alternatives considered**:
+  - Muestreo aleatorio estratificado solo por clase: reproduce el sesgo de fuente actual (55 % de
+    la antracnosis es Kaggle con fondo blanco).
+  - Submuestrear todo a 284: desperdicia más del 70 % de los datos.
 
-### D7. Preprocesamiento
+### D7. Partición: estratificada por clase y fuente, por grupos, con relleno de déficit
 
-- **Decision**: convertir a RGB (quitando el canal alfa sobre fondo blanco), redimensionar a
-  224 × 224 por estiramiento con filtro LANCZOS y guardar en JPEG de calidad 95 en
-  `Modelo/PROCESADO/<particion>/<clase>/<id_contenido>.jpg`. La normalización a [0, 1] y el
-  aumento se hacen en el entrenamiento. Se advierten las imágenes menores de 224 px por lado o con
-  una relación de aspecto mayor que 2:1.
-- **Rationale**: el estiramiento es el método de la tesis previa (comparabilidad) y no introduce
-  bordes de relleno, que podrían convertirse en un atajo correlacionado con una fuente o clase (por
-  ejemplo, Kaggle "sin fondo"). Guardar en uint8 ocupa unas cuatro veces menos que tensores
-  normalizados.
-- **Alternatives considered**: relleno a cuadrado (riesgo de atajo); recorte central (puede cortar
-  la lesión o el pedúnculo).
+- **Decision**: para cada clase se calculan las cuotas 70/15/15 sobre la muestra (redondeo por
+  mayor resto) y se procede así:
+  1. Las imágenes con partición de origen la conservan (FR-017).
+  2. Se calcula el déficit de cada partición frente a su cuota.
+  3. Ese déficit se reparte entre las fuentes libres en proporción a su tamaño (mayor resto).
+  4. Dentro de cada fuente, los grupos barajados con la semilla se asignan uno a uno a la partición
+     con mayor déficit relativo pendiente.
 
-### D8. Parámetros de aumento documentados
+  Un grupo nunca se divide.
+- **Rationale**:
+  - Sin particiones de origen ni grupos, se reduce a una estratificación clásica.
+  - En pedúnculo (182/36/37 fijas + 29 libres) da 199/43/42, dentro de ±1 pp.
+  - En sano, las 360 de MDPI fijan 252/54/54 y las 640 libres completan 700/150/150.
+  - Ordenar antes de barajar hace que el resultado no dependa del orden del sistema de archivos
+    (FR-015).
+- **Alternatives considered**:
+  - `GroupShuffleSplit` de scikit-learn: no admite asignaciones fijas ni estratificación por
+    fuente, y añade una dependencia.
 
-- **Decision**: rotación ±45°, desplazamiento 20 %, zoom 20 %, volteo horizontal y vertical, brillo
-  0.8–1.2, solo sobre entrenamiento. Se fijan en `config/dataset.toml` y el informe los publica.
-- **Rationale**: son los mismos valores de Herrera & Marín, lo que permite comparar con la tesis
-  previa; OE3 puede ajustarlos con justificación.
+### D8. Elegibilidad y estado provisional
 
-### D9. Pesos de clase sugeridos
+- **Decision**:
+  - **Definitiva:** canónica, no excluida, licencia académica y aceptada por el experto.
+  - **Provisional:** admite además imágenes con validación o licencia pendientes, y lo declara en
+    `particion.json` y en el informe.
+  - **Rechazo, caso mixto o reasignación:** la muestra se recalcula. La reposición sale de la
+    reserva de la misma fuente, de modo que solo cambian las imágenes afectadas.
+- **Rationale**: la validación y la documentación de licencias llevarán semanas; OE3 necesita una
+  partición con la que preparar su pipeline mientras tanto.
 
-- **Decision**: `peso_c = N_entrenamiento / (K × n_c)`, con K = 3, calculados sobre la partición de
-  entrenamiento y publicados en el informe junto con la razón de desbalance `n_max / n_min`.
-- **Rationale**: es la fórmula estándar de Keras/scikit-learn (`balanced`); concreta FR-017.
+### D9. Preprocesamiento
 
-### D10. Planilla del experto
+- **Decision**: aplicar `ImageOps.exif_transpose`, convertir a RGB (componiendo el canal alfa sobre
+  blanco), redimensionar a 224 × 224 por estiramiento con LANCZOS y guardar en JPEG de calidad 95 en
+  `Modelo/PROCESADO/<particion>/<clase>/<id_contenido>.jpg`. Se advierten:
+  - lado menor < 224 px;
+  - relación de aspecto > 2:1;
+  - brillo medio < 40 (oscura);
+  - varianza del laplaciano < 50 (borrosa), calculada sobre la miniatura de 224 px.
+- **Rationale**: sin la rotación EXIF, ~25 % de la antracnosis quedaría girada. El estiramiento es
+  el método de la tesis previa y no introduce bordes de relleno que puedan volverse un atajo de
+  fuente. La normalización a [0, 1] y el aumento se hacen en el entrenamiento.
+- **Alternatives considered**:
+  - Relleno a cuadrado: riesgo de atajo.
+  - Recorte central: puede cortar la lesión o el pedúnculo.
 
-- **Decision**: archivo xlsx con columnas `id_contenido`, `clase_propuesta`, `ruta` (hipervínculo
-  a la imagen), `decision` (lista desplegable: aceptada / rechazada / reasignada), `clase_nueva`
-  (lista desplegable), `comentario`, `validador` y `fecha`. Se genera por clase o por lotes de
-  tamaño configurable.
-- **Rationale**: el experto la abre en Excel sin herramientas técnicas (SC-005); los desplegables
-  evitan errores de tipeo y el hipervínculo abre la foto con un clic.
-- **Alternatives considered**: CSV (el separador depende de la configuración regional de Excel y
-  no admite desplegables).
+### D10. Parámetros de aumento documentados
+
+- **Decision**: rotación ±45°, desplazamiento 20 %, zoom 20 %, volteo horizontal y vertical y brillo
+  0.8–1.2, solo sobre entrenamiento. **Sin** variación de tono ni de saturación.
+- **Rationale**: son los valores de Herrera & Marín, lo que permite comparar con la tesis previa.
+  El tono se excluye porque la antracnosis se reconoce por el color de la lesión.
+
+### D11. Pesos de clase sugeridos
+
+- **Decision**: `peso_c = N_entrenamiento / (K × n_c)`, con K = 3, publicado junto con la razón de
+  desbalance. Con la muestra prevista: sano 0.76, antracnosis 0.76, pedúnculo 2.68 (razón 3.5).
+- **Rationale**: es la fórmula `balanced` de Keras y scikit-learn.
+
+### D12. Planilla del experto
+
+- **Decision**: xlsx con las columnas `id_contenido`, `clase_propuesta`, `fuente`, `ruta`
+  (hipervínculo a la imagen), `decision` (desplegable: aceptada / rechazada / reasignada / mixto),
+  `clase_nueva`, `objeto` (fruto completo / pedúnculo en primer plano / varios frutos / no es un
+  fruto), `toma` (campo / laboratorio / sin fondo), `calidad` (buena / aceptable / mala),
+  `comentario`, `validador` y `fecha`. Se genera por clase y en lotes.
+- **Rationale**: el experto la abre en Excel sin herramientas técnicas (SC-005). Las columnas
+  descriptivas permiten analizar el sesgo y describir el dataset en la tesis.
+
+### D13. Prueba de campo
+
+- **Decision**: la fuente `campo_sigchos` (carpeta `Modelo/CAMPO_SIGCHOS/<clase>/`, aún
+  inexistente) queda fuera de la muestra y de las cuotas, y se procesa entera a
+  `PROCESADO/test_campo/<clase>/`.
+- **Rationale**: es la mejor evidencia de generalización (corrección C10) y no debe contaminarse
+  con entrenamiento.
