@@ -1,0 +1,137 @@
+{
+  "advertencias": {
+    "borrosa": 98,
+    "oscura": 10
+  },
+  "archivos_por_clase": {
+    "antracnosis": 1869,
+    "pedunculo": 284,
+    "sano": 2473
+  },
+  "aumento": {
+    "brillo": [
+      0.8,
+      1.2
+    ],
+    "desplazamiento": 0.2,
+    "rotacion_grados": 45,
+    "volteo_horizontal": true,
+    "volteo_vertical": true,
+    "zoom": 0.2
+  },
+  "conteos": {
+    "antracnosis": {
+      "test": 150,
+      "test_campo": 0,
+      "train": 700,
+      "val": 150
+    },
+    "pedunculo": {
+      "test": 42,
+      "test_campo": 0,
+      "train": 199,
+      "val": 43
+    },
+    "sano": {
+      "test": 150,
+      "test_campo": 0,
+      "train": 700,
+      "val": 150
+    }
+  },
+  "conteos_por_fuente": {
+    "antracnosis": {
+      "avocare_antracnosis": {
+        "test": 27,
+        "train": 128,
+        "val": 28
+      },
+      "kaggle_antracnosis": {
+        "test": 68,
+        "train": 315,
+        "val": 67
+      },
+      "rgb_antracnosis": {
+        "test": 55,
+        "train": 257,
+        "val": 55
+      }
+    },
+    "pedunculo": {
+      "mdpi_pedunculo": {
+        "test": 42,
+        "train": 199,
+        "val": 43
+      }
+    },
+    "sano": {
+      "avocare_sano": {
+        "test": 31,
+        "train": 146,
+        "val": 32
+      },
+      "hass": {
+        "test": 42,
+        "train": 196,
+        "val": 42
+      },
+      "mdpi_pedunculo_sano": {
+        "test": 54,
+        "train": 252,
+        "val": 54
+      },
+      "rgb_sano": {
+        "test": 13,
+        "train": 58,
+        "val": 12
+      },
+      "sano_web": {
+        "test": 10,
+        "train": 48,
+        "val": 10
+      }
+    }
+  },
+  "decisiones_ausentes": 0,
+  "estado_particion": "provisional",
+  "estados_manifiesto": {
+    "provisional": 4626
+  },
+  "faltantes_cuota": {},
+  "generado": "2026-10-25T22:01:08",
+  "huella_particion": "3bf5426867e8a254680a214e03c34932016d049d076b69142b50e054e5ada2fd",
+  "licencia_pendiente_muestra": 2284,
+  "pesos_clase": {
+    "antracnosis": 0.7614,
+    "pedunculo": 2.6784,
+    "sano": 0.7614
+  },
+  "preprocesamiento": {
+    "aspecto_maximo": 2.0,
+    "calidad_jpeg": 95,
+    "lado_minimo": 224,
+    "tamano": 224,
+    "umbral_borrosidad": 50,
+    "umbral_brillo": 40
+  },
+  "razon_desbalance": 3.52,
+  "reserva": {
+    "antracnosis": {
+      "kaggle_antracnosis": 572,
+      "rgb_antracnosis": 297
+    },
+    "sano": {
+      "hass": 1310,
+      "sano_web": 163
+    }
+  },
+  "semilla": 42,
+  "totales_particion": {
+    "test": 342,
+    "test_campo": 0,
+    "train": 1599,
+    "val": 343
+  },
+  "validacion_pendiente_muestra": 2284,
+  "version_config": "be4174845ad7c817524bf03fc30be70aaa8b131eed0411891ef2996adde00f50"
+}

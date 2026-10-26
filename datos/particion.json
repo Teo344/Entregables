@@ -1,0 +1,75 @@
+{
+  "conteos": {
+    "antracnosis": {
+      "test": 150,
+      "train": 700,
+      "val": 150
+    },
+    "pedunculo": {
+      "test": 42,
+      "train": 199,
+      "val": 43
+    },
+    "sano": {
+      "test": 150,
+      "train": 700,
+      "val": 150
+    }
+  },
+  "conteos_por_fuente": {
+    "antracnosis": {
+      "avocare_antracnosis": 183,
+      "kaggle_antracnosis": 450,
+      "rgb_antracnosis": 367
+    },
+    "pedunculo": {
+      "mdpi_pedunculo": 284
+    },
+    "sano": {
+      "avocare_sano": 209,
+      "hass": 280,
+      "mdpi_pedunculo_sano": 360,
+      "rgb_sano": 83,
+      "sano_web": 68
+    }
+  },
+  "cuotas": {
+    "antracnosis": {
+      "avocare_antracnosis": 183,
+      "kaggle_antracnosis": 450,
+      "rgb_antracnosis": 367
+    },
+    "pedunculo": {
+      "mdpi_pedunculo": 284
+    },
+    "sano": {
+      "avocare_sano": 209,
+      "hass": 280,
+      "mdpi_pedunculo_sano": 360,
+      "rgb_sano": 83,
+      "sano_web": 68
+    }
+  },
+  "estado": "provisional",
+  "faltantes_cuota": {},
+  "generado": "2026-10-25T22:02:35",
+  "huella_particion": "3bf5426867e8a254680a214e03c34932016d049d076b69142b50e054e5ada2fd",
+  "max_por_clase": 1000,
+  "proporciones": {
+    "test": 0.15,
+    "train": 0.7,
+    "val": 0.15
+  },
+  "reserva": {
+    "antracnosis": {
+      "kaggle_antracnosis": 572,
+      "rgb_antracnosis": 297
+    },
+    "sano": {
+      "hass": 1310,
+      "sano_web": 163
+    }
+  },
+  "semilla": 42,
+  "version_config": "be4174845ad7c817524bf03fc30be70aaa8b131eed0411891ef2996adde00f50"
+}

@@ -1,0 +1,27 @@
+{
+  "decisiones_ausentes": [],
+  "generado": "2026-10-25T22:02:34",
+  "grupos": 3432,
+  "por_clase": {
+    "antracnosis": 1869,
+    "pedunculo": 284,
+    "sano": 2473
+  },
+  "por_estado": {
+    "provisional": 4626
+  },
+  "por_fuente": {
+    "avocare_antracnosis": 183,
+    "avocare_sano": 209,
+    "hass": 1590,
+    "kaggle_antracnosis": 1022,
+    "mdpi_pedunculo": 284,
+    "mdpi_pedunculo_sano": 360,
+    "rgb_antracnosis": 664,
+    "rgb_sano": 83,
+    "sano_web": 231
+  },
+  "semilla": 42,
+  "total_archivos": 4626,
+  "version_config": "be4174845ad7c817524bf03fc30be70aaa8b131eed0411891ef2996adde00f50"
+}
