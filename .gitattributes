@@ -1,0 +1,4 @@
+# Los artefactos del conjunto de datos deben ser idénticos byte a byte en cualquier equipo
+# (la huella de la partición se calcula sobre el CSV): siempre LF.
+datos/** text eol=lf
+config/** text eol=lf
