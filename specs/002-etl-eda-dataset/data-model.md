@@ -22,6 +22,9 @@ Extiende el modelo de datos de [001](../001-pipeline-dataset/data-model.md). Las
 - Estado nuevo **`excluida_licencia`**: la fuente tiene `uso_academico = no`. Se evalúa después de `duplicada` y antes de `excluida_revision`.
 - `excluida_revision` ahora también se origina en `datos/curacion/revision_etiquetas.csv` (decisión `excluir` de los autores), además de `exclusiones_revision.csv` (revisión 3).
 - `clase_efectiva` puede cambiar por una decisión `reasignar` de los autores; la imagen queda `provisional` hasta la validación del experto.
+- Columnas nuevas:
+  - `revision_autores`: la última decisión de los autores (`mantener`, `reasignar`, `excluir` o `no_seguro`), o vacía. Con `no_seguro` el estado no cambia, pero la imagen aparece en la lista "Casos para el experto" del informe y encabeza su planilla.
+  - `atajo`: `ninguno`, `cartel`, `fondo`, `mano` u `otro`, según la revisión; vacía si no se revisó.
 
 Precedencia de estados, de mayor a menor: `excluida_invalida`, `excluida_conflicto`, `duplicada`, `excluida_licencia`, `excluida_revision`, `rechazada`, `test_campo`, `provisional`, `elegible`.
 
@@ -92,6 +95,16 @@ Reglas:
 | `clase`, `fuente`, `imagenes` | — |
 
 Invariante: para cada clase × fuente, `inventariadas` = suma de los demás pasos.
+
+Correspondencia con los estados del manifiesto:
+
+| Paso | Estado |
+| --- | --- |
+| `invalida` | `excluida_invalida` |
+| `conflicto_clase` | `excluida_conflicto` |
+| `duplicada`, `excluida_licencia`, `excluida_revision`, `rechazada`, `test_campo` | mismo nombre |
+| `fuera_de_cuota` | candidata (`elegible` o `provisional`) con `en_muestra = no` |
+| `conjunto_final` | `en_muestra = si` |
 
 ### Comparación con 001 (`datos/etl/comparacion_001.csv`)
 

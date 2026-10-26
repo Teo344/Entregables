@@ -63,7 +63,8 @@ Proyecto único en la raíz de `Entregables`: `src/avocadoia_datos/`, `tests/`, 
     - referencia "Tesis previa de Herrera y Marín, carpeta OneDrive" con la URL;
     - licencia "permiso de los autores";
     - `uso_academico = si`, `particion_origen = no`, `regla_grupo = ninguna`, `rol = general`;
-  - en `sano_web`, poner `uso_academico = no` y licencia "sin licencia identificable (descargas de internet)".
+  - en `sano_web`, poner `uso_academico = no` y licencia "sin licencia identificable (descargas de internet)";
+  - en `kaggle_antracnosis`, completar la licencia con la justificación de uso académico de la spec (publicada por el autor para uso de otros; se cita la fuente).
 - [ ] T010 Actualizar `[cuotas.sano]` en `config/dataset.toml` a `mdpi_pedunculo_sano = 360`, `hass = 540`, `rgb_sano = 83`, `herrera_marin = 17`, y quitar `sano_web`. Comentar la decisión con la fecha 2026-10-26 (research E5).
 - [ ] T011 Implementar `etl-extraer` en `src/avocadoia_datos/etl/embudo.py` (función `guardar_linea_base`) y en `src/avocadoia_datos/cli.py`:
   - ejecuta `inventario`;
@@ -133,11 +134,11 @@ Proyecto único en la raíz de `Entregables`: `src/avocadoia_datos/`, `tests/`, 
   - una decisión de grupo se propaga a sus miembros;
   - `excluir` → `excluida_revision` con el motivo "Autores: <comentario>";
   - `reasignar` → `clase_efectiva = clase_nueva`;
-  - `no_seguro` → sin cambio de estado, pero con la columna `atajo`/`marca` visible.
-  Agregar al manifiesto las columnas `revision_autores` y `atajo`.
+  - `no_seguro` → sin cambio de estado, con `revision_autores = no_seguro`.
+  Agregar al manifiesto las columnas `revision_autores` y `atajo` con los valores de data-model.md.
 - [ ] T020 [US1] Agregar a `src/avocadoia_datos/cli.py` los subcomandos `etl-representaciones`, `etl-sospechas`, `etl-revision` y `etl-incorporar`, con las opciones, códigos de salida y resúmenes de `contracts/cli.md`.
 - [ ] T021 [US1] Ejecutar `etl-representaciones` y `etl-sospechas`. Registrar en `datos/etl/README.md` cuántas imágenes hay a revisar por clase y si `Avocado 2022.jpg` está marcada o ya excluida (escenario 3 de US1). Después, generar las planillas con `etl-revision --tipo sospecha`.
-- [ ] T022 [MANUAL] [US1] Los autores completan las planillas de `datos/revision/revision_sospecha_*.xlsx` (`decision`, `alcance`, `atajo`, `revisor`, `fecha`) y marcan como `no_seguro` los casos para el experto.
+- [ ] T022 [MANUAL] [US1] Los autores completan las planillas de `datos/revision/revision_sospecha_*.xlsx` (`decision`, `alcance`, `atajo`, `revisor`, `fecha`) y marcan como `no_seguro` los casos para el experto. Además hacen la **revisión sistemática** (FR-005): recorren los mosaicos por clase y fuente de T028 buscando etiquetas erróneas y carteles. Las imágenes que quieran registrar las anotan en una planilla `etl-revision --tipo sistematica`.
 - [ ] T023 [US1] Incorporar las planillas con `etl-incorporar`. Regenerar con `etl-extraer` y `todo`, y verificar que la cuota de cada clase se vuelve a cubrir desde la reserva y que 0 grupos quedan repartidos.
 
 **Checkpoint**: conjunto limpio (provisional) con todas las sospechosas decididas (SC-002)
@@ -270,6 +271,7 @@ Proyecto único en la raíz de `Entregables`: `src/avocadoia_datos/`, `tests/`, 
   - **Embudo**;
   - **EDA**: distribuciones, características, sesgos y atajos, t-SNE, mosaicos;
   - **Auditoría** (SC-003);
+  - **Casos para el experto**: imágenes con `revision_autores = no_seguro`, y la nota de que el conteo de carteles es parcial (solo cubre lo revisado);
   - **Conclusiones** C1…Cn: pesos por clase, aumento recomendado, riesgos con mitigación y limitaciones (estado provisional y validador pendiente), cada una con evidencia (SC-007);
   - **Reproducibilidad**: huellas de pesos, representaciones, partición y versiones.
 - [ ] T043 [US6] Agregar a `src/avocadoia_datos/cli.py` los subcomandos `informe-etl-eda`, con sus precondiciones, y `etl-eda`, que encadena los pasos sin intervención manual según `contracts/cli.md`.
@@ -281,9 +283,9 @@ Proyecto único en la raíz de `Entregables`: `src/avocadoia_datos/`, `tests/`, 
 
 ## Phase 9: Polish & Cross-Cutting Concerns
 
-- [ ] T047 Ejecutar `etl-eda` completo sobre el conjunto limpio. Revisar las conclusiones del informe y que se cumplan SC-001 a SC-007, y anotar en el informe los que no se cumplan.
+- [ ] T047 Ejecutar `etl-eda` completo sobre el conjunto limpio y registrar su duración en el informe (objetivo del plan: menos de 30 min). Revisar las conclusiones y que se cumplan SC-001 a SC-007, y anotar en el informe los que no se cumplan.
 - [ ] T048 [P] Escribir `tests/integration/test_etl_eda.py` (marca `ml`). Ejecuta la cadena sobre un árbol sintético de unas 30 imágenes con TensorFlow y verifica las salidas de `contracts/cli.md` y que dos ejecuciones producen tablas y JSON idénticos (SC-006).
-- [ ] T049 Verificar la reproducibilidad real con `etl-eda` dos veces y `git diff --stat datos/etl datos/eda/tablas datos/eda/informe_etl_eda.json` sin cambios (quickstart, paso 6). Verificar también que `.venv/Scripts/python -m pytest -m "not ml"` sigue pasando sin TensorFlow.
+- [ ] T049 Verificar la reproducibilidad real con `etl-eda` dos veces y `git diff --stat datos/etl datos/eda/tablas datos/eda/informe_etl_eda.json` sin cambios (quickstart, paso 6). Verificar también que `.venv/Scripts/python -m pytest -m "not ml"` sigue pasando sin TensorFlow. Verificar FR-023: con los pesos en caché, repetir `etl-representaciones --forzar` y `eda` con la variable `AVOCADOIA_SIN_RED=1`; el código falla si intenta descargar algo.
 - [ ] T050 [P] Documentar las carpetas nuevas, los comandos y el estado provisional en `datos/README.md`, `datos/curacion/README.md` y `datos/etl/README.md`. Explicar la regla `herrera_marin` / `sano_web`.
 - [ ] T051 Generar el Word con `scripts/informe/generar_word.ps1` y comprobar que no se sobrescribió ningún archivo de `DocumentosFInales/`.
 
@@ -342,5 +344,6 @@ T027 src/avocadoia_datos/eda/distribuciones.py
 
 ### Notas
 
-- El conjunto sigue **provisional** hasta que haya un validador experto. La partición definitiva queda fuera de esta funcionalidad (spec, Assumptions).
+- El conjunto sigue **provisional** hasta que haya un validador experto. La partición definitiva queda fuera de esta funcionalidad (spec, Assumptions). FR-013 ya se cumple con los subcomandos `planilla`, `incorporar` y `particionar --definitiva` de 001; se usarán cuando exista el validador.
+- Los mosaicos de `datos/eda/figuras/` contienen miniaturas derivadas de baja resolución. Se versionan como figuras de tesis; no son imágenes del conjunto (constitución, Restricciones de datos).
 - Las tareas [MANUAL] no las marca el agente: las confirman los autores.

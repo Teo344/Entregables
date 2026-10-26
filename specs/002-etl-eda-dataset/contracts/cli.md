@@ -19,7 +19,7 @@ Los mismos de 001: 0 éxito, 1 error de configuración, 2 precondición no cumpl
 | Subcomando | Qué hace | Lee | Escribe |
 | --- | --- | --- | --- |
 | `etl-extraer` | Ejecuta `inventario` con las fuentes vigentes y, si no existe, guarda la partición de 001 como línea base | `config/`, `Modelo/`, `git show f43575e:datos/particion.csv` | `datos/manifiesto.*`, `datos/etl/particion_001.csv` |
-| `etl-representaciones` **(ML)** | Vectores EfficientNet-B0 de todas las candidatas (normales y con el centro tapado), con caché | manifiesto, imágenes | `datos/eda/cache/representaciones.npz` |
+| `etl-representaciones [--forzar]` **(ML)** | Vectores EfficientNet-B0 de todas las candidatas (normales y con el centro tapado), con caché; `--forzar` recalcula todo. Con `AVOCADOIA_SIN_RED=1` termina con el código 2 si los pesos no están en caché, en lugar de descargarlos (FR-023) | manifiesto, imágenes | `datos/eda/cache/representaciones.npz` |
 | `etl-sospechas` | Probabilidades fuera de muestra, *confident learning* y vecinos, y marca `a_revisar` | caché, manifiesto | `datos/etl/sospechas.csv` |
 | `etl-revision [--tipo sospecha\|sistematica] [--clase C] [--lote N]` | Planillas xlsx con miniaturas: las marcadas `a_revisar` o, con `sistematica`, un recorrido completo por clase | sospechas, manifiesto | `datos/revision/revision_<tipo>_<clase>_<NN>.xlsx` |
 | `etl-auditoria [--n 100]` | Planilla de auditoría al azar, estratificada por clase, sobre el conjunto final | partición | `datos/revision/auditoria_01.xlsx` |

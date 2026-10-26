@@ -24,6 +24,7 @@ Cada decisión sigue el formato Decisión / Justificación / Alternativas. Las d
   3. **Puntaje de sospecha** = 1 − *p*(clase asignada), complementado con la proporción de los 10 vecinos más cercanos (coseno, excluyendo su propio grupo) que tienen otra clase.
   4. **Conjunto a revisar** = conflictos ∪ 10 % de mayor puntaje en cada clase (supuesto de la spec).
 - **Justificación**: es el método estándar para ruido de etiquetas, explicable ante el tribunal y sin dependencias nuevas fuera de scikit-learn. La validación por grupos impide que las vistas del mismo fruto se "voten" entre sí.
+- **Principio II (conjunto de prueba)**: el clasificador de limpieza es una herramienta de curación que se descarta. Trata igual las imágenes de train, val y test: todas se juzgan con validación cruzada y se revisan con el mismo criterio. No elige hiperparámetros ni arquitectura del modelo de 003, y no se calibra con él. Corregir etiquetas de test no es usar test para entrenar. Las sondas que sí orientan decisiones de modelado (E7) excluyen test.
 - **Alternativas**: la librería `cleanlab` (misma idea, dependencia extra con muchas funciones que no se usan); solo k-NN (más sensible a grupos de fotos parecidas); revisar todo a mano (2 284 imágenes, inviable con trazabilidad).
 
 ## E4. Revisión manual y registro de decisiones
