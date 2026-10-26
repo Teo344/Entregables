@@ -195,8 +195,10 @@ el manifiesto.
   reasignada con nueva clase) junto con el nombre del validador, la fecha y un comentario opcional.
 - **FR-010**: El sistema MUST rechazar filas inválidas de la planilla, informarlas y procesar el
   resto.
-- **FR-011**: Una imagen MUST ser elegible para la partición solo si es única, tiene licencia
-  académica registrada, no está excluida y no fue rechazada por el experto.
+- **FR-011**: Una imagen MUST ser elegible para la partición **definitiva** solo si es única, tiene
+  licencia académica registrada, no está excluida y fue aceptada por el experto. La partición
+  **provisional** admite además imágenes con validación o licencia pendientes, pero nunca las
+  rechazadas ni las excluidas.
 
 **Partición**
 
@@ -206,7 +208,8 @@ el manifiesto.
 - **FR-014**: Ningún contenido MUST aparecer en más de una partición.
 - **FR-015**: Las imágenes que traen una partición asignada por su fuente MUST conservarla.
 - **FR-016**: La partición MUST marcarse "provisional" mientras incluya imágenes no aceptadas por
-  el experto, y "definitiva" cuando todas estén aceptadas.
+  el experto o con licencia pendiente, y "definitiva" cuando todas estén aceptadas y con licencia
+  académica.
 - **FR-017**: El sistema MUST conservar todas las imágenes elegibles en la partición, sin
   submuestreo; el desbalance se compensa en el entrenamiento (OE3, mediante pesos de clase o aumento
   dirigido). El informe MUST incluir la razón de desbalance entre la clase mayor y la menor y los
