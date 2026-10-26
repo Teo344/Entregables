@@ -1,0 +1,13 @@
+fuente,clase,patron,descripcion,referencia,licencia,uso_academico,particion_origen,regla_grupo,rol
+mdpi_pedunculo_sano,sano,AGUACATESANOS/DRIVE_*/*,Pedúnculo sano (clase 0) del artículo ring-neck,"A Lightweight Shallow CNN-Based Approach for Ring-Neck Disease Detection in Avocado Fruits, Computers 15(8):513, https://www.mdpi.com/2073-431X/15/8/513",pendiente,pendiente,si,ninguna,general
+hass,sano,AGUACATESANOS/hass_*,Serie Hass de maduración (tratamiento/día/fruto),pendiente,pendiente,pendiente,no,hass,general
+avocare_sano,sano,AGUACATESANOS/avocare_*,Repositorio avocare (sano),pendiente,pendiente,pendiente,no,ninguna,general
+rgb_sano,sano,AGUACATESANOS/rgb_*,Serie RGB (sano),pendiente,pendiente,pendiente,no,ninguna,general
+sano_web,sano,AGUACATESANOS/sano-*,Imágenes web de aguacate sano,pendiente,pendiente,pendiente,no,ninguna,general
+avocare_antracnosis,antracnosis,ANTRACNOSIS/avocare_*,Repositorio avocare (antracnosis),pendiente,pendiente,pendiente,no,ninguna,general
+rgb_antracnosis,antracnosis,ANTRACNOSIS/rgb_*,Serie RGB (antracnosis),pendiente,pendiente,pendiente,no,ninguna,general
+kaggle_antracnosis,antracnosis,ANTRACNOSIS/Avocado *,"Kaggle, aguacates sin fondo (Anthracnose)",pendiente,pendiente,pendiente,no,ninguna,general
+mdpi_pedunculo,pedunculo,PEDUNCULO/DRIVE_*/*,Ring-neck (clase 1) del artículo ring-neck,"A Lightweight Shallow CNN-Based Approach for Ring-Neck Disease Detection in Avocado Fruits, Computers 15(8):513, https://www.mdpi.com/2073-431X/15/8/513",pendiente,pendiente,si,ninguna,general
+campo_sigchos_sano,sano,CAMPO_SIGCHOS/AGUACATESANOS/*,Capturas propias en Sigchos (prueba de campo),GAD Municipal de Sigchos,propia,si,no,ninguna,test_campo
+campo_sigchos_antracnosis,antracnosis,CAMPO_SIGCHOS/ANTRACNOSIS/*,Capturas propias en Sigchos (prueba de campo),GAD Municipal de Sigchos,propia,si,no,ninguna,test_campo
+campo_sigchos_pedunculo,pedunculo,CAMPO_SIGCHOS/PEDUNCULO/*,Capturas propias en Sigchos (prueba de campo),GAD Municipal de Sigchos,propia,si,no,ninguna,test_campo

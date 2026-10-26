@@ -1,0 +1,46 @@
+# Configuración del pipeline del conjunto de datos (spec 001-pipeline-dataset).
+# Cambiar cuotas o proporciones cambia la muestra: justificarlo y regenerar con `todo`.
+
+semilla = 42
+max_por_clase = 1000
+
+[proporciones]
+train = 0.70
+val = 0.15
+test = 0.15
+
+# Cuotas por fuente dentro de cada clase (claves = columna `fuente` de fuentes.csv).
+[cuotas.sano]
+mdpi_pedunculo_sano = 360
+avocare_sano = 209
+rgb_sano = 83
+hass = 280
+sano_web = 68
+
+[cuotas.antracnosis]
+avocare_antracnosis = 183
+rgb_antracnosis = 367
+kaggle_antracnosis = 450
+
+[cuotas.pedunculo]
+mdpi_pedunculo = 284
+
+[preprocesamiento]
+tamano = 224
+calidad_jpeg = 95
+umbral_brillo = 40
+umbral_borrosidad = 50
+lado_minimo = 224
+aspecto_maximo = 2.0
+
+# Solo entrenamiento; se documenta en el informe, no se aplica aquí (research D10).
+[aumento]
+rotacion_grados = 45
+desplazamiento = 0.20
+zoom = 0.20
+volteo_horizontal = true
+volteo_vertical = true
+brillo = [0.8, 1.2]
+
+[planilla]
+lote = 250
