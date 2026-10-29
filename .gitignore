@@ -28,7 +28,7 @@ Modelo/PORCLASIFICAR/Drive/*.zip
 /Modelo/PROCESADO/
 
 # Entorno de Python
-.venv/
+.venv*/
 __pycache__/
 *.egg-info/
 .pytest_cache/
