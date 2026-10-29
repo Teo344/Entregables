@@ -25,6 +25,10 @@ class ErrorPrecondicion(Exception):
     """Precondición incumplida, p. ej. falta el manifiesto (código de salida 2)."""
 
 
+class ErrorDependencia(Exception):
+    """Falta una dependencia opcional, p. ej. TensorFlow fuera de .venv-ml (código de salida 3)."""
+
+
 @dataclass(frozen=True)
 class Fuente:
     fuente: str
@@ -52,9 +56,12 @@ class Config:
     version_config: str = ""
 
     def fuente_de(self, ruta_relativa):
-        """Primera fuente cuyo patrón coincide con la ruta relativa a Modelo/ (o None)."""
+        """Primera fuente cuyo patrón coincide con la ruta relativa a Modelo/ (o None).
+
+        Un patrón puede tener varias alternativas separadas por "|" (spec 002, research E5).
+        """
         for fuente in self.fuentes:
-            if fnmatchcase(ruta_relativa, fuente.patron):
+            if any(fnmatchcase(ruta_relativa, p) for p in fuente.patron.split("|")):
                 return fuente
         return None
 

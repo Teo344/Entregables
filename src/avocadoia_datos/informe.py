@@ -14,7 +14,8 @@ _ETIQUETAS_ESTADO = {
     "duplicada": "Copia exacta (se conserva la canónica)",
     "excluida_conflicto": "Excluida: etiqueta en conflicto",
     "excluida_invalida": "Excluida: archivo inválido",
-    "excluida_revision": "Excluida por revisión (fuente aumentada o sin lesión visible)",
+    "excluida_licencia": "Excluida: la fuente no permite uso académico",
+    "excluida_revision": "Excluida por revisión (fuente aumentada, sin lesión visible o decisión de los autores)",
     "rechazada": "Rechazada por el experto o caso mixto",
     "test_campo": "Prueba de campo",
 }

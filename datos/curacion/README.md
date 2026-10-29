@@ -50,9 +50,9 @@ aparezcan en ambas clases y el modelo no aprenda "pedúnculo en primer plano = e
 ## Pendientes
 
 - Validación de las etiquetas por el experto agrónomo.
-- Documentar el origen y la licencia de las series `hass_`, `sano-`, `rgb_*` y `avocare_`.
-- La serie `sano-` contiene imágenes web (frutos partidos, árboles, catálogo); revisar si se
-  mantienen.
+- ~~Documentar el origen y la licencia de las series~~: hecho en `config/fuentes.csv` (2026-10-26).
+- ~~La serie `sano-`~~: resuelto en la spec 002. Se usan solo las 17 fotos propias de Herrera y
+  Marín (`herrera_marin`); las 214 descargas quedan `excluida_licencia`.
 - Kaggle "Healthy" (1 764) sigue en `PORCLASIFICAR`; todo el Kaggle "sin fondo" de las carpetas es
   antracnosis, un posible atajo que se vigilará en OE3 (métricas por fuente y Grad-CAM++).
 - Borrar `PORCLASIFICAR/` y `RETIRADAS/` cuando el conjunto esté aprobado.
@@ -71,3 +71,10 @@ problemas de origen:
 
 Nada se movió ni se borró. El pipeline marca las exclusiones como `excluida_revision`, y si el
 experto acepta una de esas imágenes, su decisión prevalece.
+
+## Revisión de los autores (spec 002)
+
+[revision_etiquetas.csv](revision_etiquetas.csv) acumula las decisiones de las planillas de revisión
+(`etl-incorporar`): `mantener`, `reasignar`, `excluir` o `no_seguro`, con alcance de grupo o imagen,
+atajo visual, revisor y fecha. El inventario aplica la decisión vigente más reciente; la del experto
+(`validacion/decisiones.csv`) prevalece. Detalle en [../etl/README.md](../etl/README.md).

@@ -36,6 +36,19 @@ Con las mismas imágenes y la misma configuración, `manifiesto.csv` y `particio
 idénticos byte a byte (verificado el 2026-10-25). Tiempos medidos en el equipo local: inventario
 75 s y preprocesamiento 207 s.
 
+### ETL y EDA (spec 002)
+
+Requiere Python 3.12 y TensorFlow (no hay ruedas para 3.14):
+
+```powershell
+py -3.12 -m venv .venv-ml
+.venv-ml\Scripts\python -m pip install -e ".[dev,eda]"
+.venv-ml\Scripts\python -m avocadoia_datos etl-eda   # ETL + EDA + informe, sin pasos manuales
+scripts\informe\generar_word.ps1 -Fecha AAAA-MM-DD    # Word en DocumentosFInales, sin sobrescribir
+```
+
+La revisión manual de etiquetas se describe en [etl/README.md](etl/README.md).
+
 ## Archivos
 
 | Archivo | Contenido |
@@ -45,7 +58,10 @@ idénticos byte a byte (verificado el 2026-10-25). Tiempos medidos en el equipo 
 | `informe.md` / `.json` | Tablas para los capítulos 5.1 y 5.2: distribución, fuentes, pesos de clase y aumento |
 | `advertencias.csv` | Imágenes pequeñas, de aspecto extremo, oscuras o borrosas (para revisión, no se excluyen) |
 | `validacion/` | Planillas del experto y `decisiones.csv` (acumulativo) |
-| `curacion/` | Registro de la curación inicial del 2026-10-25 |
+| `curacion/` | Registro de la curación inicial del 2026-10-25, de la revisión 3 y de la revisión de los autores (`revision_etiquetas.csv`, spec 002) |
+| `etl/` | ETL de la spec 002: línea base de 001, sospechas, embudo y comparación ([README](etl/README.md)) |
+| `eda/` | EDA de la spec 002: `tablas/`, `figuras/` (incluye `mosaicos/`) e `informe_etl_eda.md` / `.json` |
+| `revision/` | Planillas de revisión y auditoría en curso (no versionadas) |
 
 La configuración está en [`config/dataset.toml`](../config/dataset.toml) (semilla, tope, cuotas,
 preprocesamiento, aumento) y [`config/fuentes.csv`](../config/fuentes.csv) (fuentes, licencias,

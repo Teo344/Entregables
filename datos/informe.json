@@ -1,7 +1,6 @@
 {
   "advertencias": {
-    "aspecto": 1,
-    "borrosa": 101
+    "borrosa": 95
   },
   "archivos_por_clase": {
     "antracnosis": 1869,
@@ -21,81 +20,93 @@
   },
   "conteos": {
     "antracnosis": {
-      "test": 149,
+      "test": 143,
       "test_campo": 0,
-      "train": 700,
-      "val": 151
+      "train": 670,
+      "val": 145
     },
     "pedunculo": {
-      "test": 42,
+      "test": 39,
       "test_campo": 0,
-      "train": 199,
-      "val": 43
+      "train": 184,
+      "val": 40
     },
     "sano": {
-      "test": 150,
+      "test": 145,
       "test_campo": 0,
-      "train": 700,
-      "val": 150
+      "train": 677,
+      "val": 145
     }
   },
   "conteos_por_fuente": {
     "antracnosis": {
       "kaggle_antracnosis": {
-        "test": 49,
+        "test": 50,
         "train": 235,
-        "val": 52
+        "val": 51
       },
       "rgb_antracnosis": {
-        "test": 100,
-        "train": 465,
-        "val": 99
+        "test": 93,
+        "train": 435,
+        "val": 94
       }
     },
     "pedunculo": {
       "mdpi_pedunculo": {
-        "test": 42,
-        "train": 199,
-        "val": 43
+        "test": 39,
+        "train": 184,
+        "val": 40
       }
     },
     "sano": {
       "hass": {
-        "test": 59,
-        "train": 277,
-        "val": 60
+        "test": 80,
+        "train": 379,
+        "val": 81
+      },
+      "herrera_marin": {
+        "test": 2,
+        "train": 13,
+        "val": 2
       },
       "mdpi_pedunculo_sano": {
-        "test": 54,
-        "train": 252,
-        "val": 54
+        "test": 52,
+        "train": 235,
+        "val": 51
       },
       "rgb_sano": {
-        "test": 13,
-        "train": 58,
-        "val": 12
-      },
-      "sano_web": {
-        "test": 24,
-        "train": 113,
-        "val": 24
+        "test": 11,
+        "train": 50,
+        "val": 11
       }
     }
   },
   "decisiones_ausentes": 0,
   "estado_particion": "provisional",
   "estados_manifiesto": {
-    "excluida_revision": 680,
-    "provisional": 3946
+    "excluida_licencia": 214,
+    "excluida_revision": 833,
+    "provisional": 3579
   },
-  "faltantes_cuota": {},
-  "generado": "2026-10-26T08:36:37",
-  "huella_particion": "001e3a7c62a6d3acbb013a7de37ee1aac8a08b6a32b75775d232636ffbfb02a7",
-  "licencia_pendiente_muestra": 2284,
+  "faltantes_cuota": {
+    "antracnosis": {
+      "rgb_antracnosis": 42
+    },
+    "pedunculo": {
+      "mdpi_pedunculo": 21
+    },
+    "sano": {
+      "mdpi_pedunculo_sano": 22,
+      "rgb_sano": 11
+    }
+  },
+  "generado": "2026-10-26T14:53:27",
+  "huella_particion": "096faf72d19fd58e0714c998fa4afefa97a6b97df4172fbdea6f3f73365a4bef",
+  "licencia_pendiente_muestra": 0,
   "pesos_clase": {
-    "antracnosis": 0.7614,
-    "pedunculo": 2.6784,
-    "sano": 0.7614
+    "antracnosis": 0.7617,
+    "pedunculo": 2.7736,
+    "sano": 0.7538
   },
   "preprocesamiento": {
     "aspecto_maximo": 2.0,
@@ -105,23 +116,25 @@
     "umbral_borrosidad": 50,
     "umbral_brillo": 40
   },
-  "razon_desbalance": 3.52,
+  "razon_desbalance": 3.68,
   "reserva": {
     "antracnosis": {
       "kaggle_antracnosis": 398
     },
+    "pedunculo": {
+      "mdpi_pedunculo_sano": 2
+    },
     "sano": {
-      "hass": 1194,
-      "sano_web": 70
+      "hass": 991
     }
   },
   "semilla": 42,
   "totales_particion": {
-    "test": 341,
+    "test": 327,
     "test_campo": 0,
-    "train": 1599,
-    "val": 344
+    "train": 1531,
+    "val": 330
   },
-  "validacion_pendiente_muestra": 2284,
-  "version_config": "2b510c34d9c505a536c414cb1af14318ea6dfbe217e8c312a52c7e983f881a78"
+  "validacion_pendiente_muestra": 2188,
+  "version_config": "46897064682c9ea9b4157adcebef28f06055a7135870eb960bc028ab3660ff1e"
 }

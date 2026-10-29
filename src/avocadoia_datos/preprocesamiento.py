@@ -28,9 +28,14 @@ def a_rgb(im):
     return im.convert("RGB")
 
 
-def procesar_imagen(origen, destino, tamano, calidad):
+def cargar_224(origen, tamano):
+    """La misma transformación que procesar_imagen, en memoria (EXIF → RGB → tamano × tamano)."""
     with Image.open(origen) as im:
-        salida = a_rgb(im).resize((tamano, tamano), Image.LANCZOS)
+        return a_rgb(im).resize((tamano, tamano), Image.LANCZOS)
+
+
+def procesar_imagen(origen, destino, tamano, calidad):
+    salida = cargar_224(origen, tamano)
     os.makedirs(os.path.dirname(destino), exist_ok=True)
     salida.save(destino, "JPEG", quality=calidad)
     return salida

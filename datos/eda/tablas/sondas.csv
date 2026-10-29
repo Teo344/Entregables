@@ -1,0 +1,6 @@
+sonda,descripcion,exactitud_balanceada,azar,alerta,n,conjuntos
+bajo_nivel,"Clase desde brillo, contraste, nitidez, color, tamaño y fondo (sin la fuente)",0.7764,0.3333,no,1861,train+val
+fondo,Clase desde la imagen con el 60 % central tapado (solo el borde),0.9524,0.3333,si,1861,train+val
+imagen_completa,Referencia: clase desde la imagen completa (clasificador lineal),0.9950,0.3333,,1861,train+val
+fuente_sano,Fuente dentro de la clase sano desde la imagen completa,0.9959,0.2500,,822,train+val
+fuente_antracnosis,Fuente dentro de la clase antracnosis desde la imagen completa,1.0000,0.5000,,815,train+val

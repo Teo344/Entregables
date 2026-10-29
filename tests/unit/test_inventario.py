@@ -124,3 +124,41 @@ def test_idempotente_y_no_modifica_originales(arbol_completo):
     assert open(os.path.join(arbol.salida, "manifiesto.csv"), "rb").read() == primero
     for r, (sha, mtime) in antes.items():
         assert sha256_archivo(r) == sha and os.path.getmtime(r) == mtime
+
+
+def _revision(arbol, filas):
+    escribir_csv(os.path.join(arbol.salida, "curacion", "revision_etiquetas.csv"),
+                 ["id_contenido", "decision", "clase_nueva", "alcance", "atajo", "comentario", "revisor", "fecha",
+                  "planilla", "tipo"], filas)
+
+
+def test_revision_de_autores_excluye_y_reasigna(arbol):
+    arbol.agregar("ANTRACNOSIS/rgb_antracnosis_0001.jpg")
+    arbol.agregar("ANTRACNOSIS/rgb_antracnosis_0002.jpg")
+    f = _por_ruta(_ejecutar(arbol)[0])
+    a, b = f["ANTRACNOSIS/rgb_antracnosis_0001.jpg"], f["ANTRACNOSIS/rgb_antracnosis_0002.jpg"]
+    _revision(arbol, [
+        {"id_contenido": a["id_contenido"], "decision": "excluir", "alcance": "imagen", "atajo": "cartel",
+         "comentario": "cartel escrito", "revisor": "r", "fecha": "2026-10-27", "tipo": "sospecha"},
+        {"id_contenido": b["id_contenido"], "decision": "reasignar", "clase_nueva": "sano", "alcance": "imagen",
+         "revisor": "r", "fecha": "2026-10-27", "tipo": "sospecha"}])
+    filas, meta = _ejecutar(arbol)
+    f = _por_ruta(filas)
+    a, b = f["ANTRACNOSIS/rgb_antracnosis_0001.jpg"], f["ANTRACNOSIS/rgb_antracnosis_0002.jpg"]
+    assert a["estado"] == "excluida_revision" and a["motivo"] == "Autores: cartel escrito" and a["atajo"] == "cartel"
+    assert b["clase_efectiva"] == "sano" and b["clase_propuesta"] == "antracnosis" and b["estado"] == "provisional"
+    assert b["revision_autores"] == "reasignar"
+    assert meta["revision_autores"] == {"excluir": 1, "reasignar": 1}
+    assert os.path.exists(os.path.join(arbol.modelo, "ANTRACNOSIS/rgb_antracnosis_0001.jpg"))
+
+
+def test_el_experto_prevalece_sobre_la_exclusion_de_los_autores(arbol):
+    arbol.agregar("ANTRACNOSIS/rgb_antracnosis_0001.jpg")
+    a = _ejecutar(arbol)[0][0]
+    _revision(arbol, [{"id_contenido": a["id_contenido"], "decision": "excluir", "alcance": "grupo",
+                       "revisor": "r", "fecha": "2026-10-27", "tipo": "sospecha"}])
+    escribir_csv(os.path.join(arbol.salida, "validacion", "decisiones.csv"),
+                 ["id_contenido", "decision", "validador", "fecha"],
+                 [{"id_contenido": a["id_contenido"], "decision": "aceptada", "validador": "e", "fecha": "2026-10-28"}])
+    a = _ejecutar(arbol)[0][0]
+    assert a["estado"] == "elegible"  # aceptada por el experto y fuente con licencia

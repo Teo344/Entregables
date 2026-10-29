@@ -1,34 +1,34 @@
 {
   "conteos": {
     "antracnosis": {
-      "test": 149,
-      "train": 700,
-      "val": 151
+      "test": 143,
+      "train": 670,
+      "val": 145
     },
     "pedunculo": {
-      "test": 42,
-      "train": 199,
-      "val": 43
+      "test": 39,
+      "train": 184,
+      "val": 40
     },
     "sano": {
-      "test": 150,
-      "train": 700,
-      "val": 150
+      "test": 145,
+      "train": 677,
+      "val": 145
     }
   },
   "conteos_por_fuente": {
     "antracnosis": {
       "kaggle_antracnosis": 336,
-      "rgb_antracnosis": 664
+      "rgb_antracnosis": 622
     },
     "pedunculo": {
-      "mdpi_pedunculo": 284
+      "mdpi_pedunculo": 263
     },
     "sano": {
-      "hass": 396,
-      "mdpi_pedunculo_sano": 360,
-      "rgb_sano": 83,
-      "sano_web": 161
+      "hass": 540,
+      "herrera_marin": 17,
+      "mdpi_pedunculo_sano": 338,
+      "rgb_sano": 72
     }
   },
   "cuotas": {
@@ -40,16 +40,27 @@
       "mdpi_pedunculo": 284
     },
     "sano": {
-      "hass": 396,
+      "hass": 540,
+      "herrera_marin": 17,
       "mdpi_pedunculo_sano": 360,
-      "rgb_sano": 83,
-      "sano_web": 161
+      "rgb_sano": 83
     }
   },
   "estado": "provisional",
-  "faltantes_cuota": {},
-  "generado": "2026-10-26T08:36:33",
-  "huella_particion": "001e3a7c62a6d3acbb013a7de37ee1aac8a08b6a32b75775d232636ffbfb02a7",
+  "faltantes_cuota": {
+    "antracnosis": {
+      "rgb_antracnosis": 42
+    },
+    "pedunculo": {
+      "mdpi_pedunculo": 21
+    },
+    "sano": {
+      "mdpi_pedunculo_sano": 22,
+      "rgb_sano": 11
+    }
+  },
+  "generado": "2026-10-26T14:52:23",
+  "huella_particion": "096faf72d19fd58e0714c998fa4afefa97a6b97df4172fbdea6f3f73365a4bef",
   "max_por_clase": 1000,
   "proporciones": {
     "test": 0.15,
@@ -60,11 +71,13 @@
     "antracnosis": {
       "kaggle_antracnosis": 398
     },
+    "pedunculo": {
+      "mdpi_pedunculo_sano": 2
+    },
     "sano": {
-      "hass": 1194,
-      "sano_web": 70
+      "hass": 991
     }
   },
   "semilla": 42,
-  "version_config": "2b510c34d9c505a536c414cb1af14318ea6dfbe217e8c312a52c7e983f881a78"
+  "version_config": "46897064682c9ea9b4157adcebef28f06055a7135870eb960bc028ab3660ff1e"
 }

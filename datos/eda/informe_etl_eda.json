@@ -1,0 +1,583 @@
+{
+  "auditoria": {
+    "cumple_sc003": false,
+    "errores": 6,
+    "ic95": [
+      0.0278,
+      0.1248
+    ],
+    "revisadas": 100,
+    "tasa": 0.06
+  },
+  "aumento": {
+    "brillo": [
+      0.8,
+      1.2
+    ],
+    "desplazamiento": 0.2,
+    "rotacion_grados": 45,
+    "volteo_horizontal": true,
+    "volteo_vertical": true,
+    "zoom": 0.2
+  },
+  "comparacion_001": {
+    "cambia_conjunto": 304,
+    "entra": 158,
+    "igual": 1726,
+    "sale": 254
+  },
+  "conclusiones": [
+    {
+      "conclusion": "Desbalance entre clases",
+      "evidencia": [
+        "datos/eda/tablas/distribucion_clase_fuente_conjunto.csv"
+      ],
+      "id": "C1",
+      "recomendacion": "Usar pesos por clase en la pérdida: Sano 0.7538, Antracnosis 0.7617, Síntomas compatibles con anillado del pedúnculo 2.7736 (n_total / (3 · n_clase) sobre train)."
+    },
+    {
+      "conclusion": "Aumento de datos solo en entrenamiento",
+      "evidencia": [
+        "datos/eda/figuras/caracteristicas_por_clase.png",
+        "config/dataset.toml"
+      ],
+      "id": "C2",
+      "recomendacion": "Aplicar en línea sobre train: rotación ±45°, desplazamiento 0.2, zoom 0.2, volteos y brillo [0.8, 1.2]. Val y test no se aumentan."
+    },
+    {
+      "conclusion": "Sonda bajo_nivel: 0.7764 (umbral 0.80), sin alerta",
+      "evidencia": [
+        "datos/eda/tablas/sondas.csv"
+      ],
+      "id": "C3",
+      "recomendacion": "No requiere mitigación específica; se verifica igualmente con Grad-CAM++ en 003."
+    },
+    {
+      "conclusion": "Riesgo de atajo: el fondo (borde de la imagen) delata la clase (sonda fondo = 0.9524)",
+      "evidencia": [
+        "datos/eda/tablas/sondas.csv",
+        "datos/eda/figuras/sondas_atajo.png"
+      ],
+      "id": "C4",
+      "recomendacion": "Recortes centrados en el fruto en el aumento, equilibrar fondos por clase y verificar con Grad-CAM++."
+    },
+    {
+      "conclusion": "Cada fuente tiene un estilo propio reconocible dentro de su clase (fuente_sano = 0.9959, fuente_antracnosis = 1.0000)",
+      "evidencia": [
+        "datos/eda/tablas/sondas.csv",
+        "datos/eda/figuras/tsne_por_fuente.png"
+      ],
+      "id": "C5",
+      "recomendacion": "Reportar en 003 las métricas por fuente, además de las globales, para detectar si el modelo acierta por la fuente y no por la enfermedad."
+    },
+    {
+      "conclusion": "La proporción de fondo uniforme difiere mucho entre clases (Sano 75%, Antracnosis 94%, Síntomas compatibles con anillado del pedúnculo 64%)",
+      "evidencia": [
+        "datos/eda/tablas/fondo_por_clase.csv",
+        "datos/eda/figuras/fondo_por_clase_fuente.png"
+      ],
+      "id": "C6",
+      "recomendacion": "Tratar el fondo como posible atajo: recortes y Grad-CAM++ en 003."
+    },
+    {
+      "conclusion": "La limpieza dejó clases bajo su cuota (Antracnosis −42, Síntomas compatibles con anillado del pedúnculo −21, Sano −33)",
+      "evidencia": [
+        "datos/particion.json",
+        "datos/eda/tablas/fondo_por_clase.csv"
+      ],
+      "id": "C7",
+      "recomendacion": "No rellenar con Hass ni Kaggle, que tienen fondo blanco al 100 % y agravarían el atajo de fondo; compensar el desbalance con los pesos por clase de C1."
+    },
+    {
+      "conclusion": "Limitaciones",
+      "evidencia": [
+        "datos/particion.json",
+        "config/fuentes.csv"
+      ],
+      "id": "C8",
+      "recomendacion": "El conjunto es provisional: falta el experto validador; el conteo de carteles es parcial (solo lo revisado); Kaggle no tiene licencia abierta (uso académico con cita). Las métricas finales de la tesis deben salir del conjunto definitivo."
+    }
+  ],
+  "conjunto_final": {
+    "antracnosis": {
+      "test": 143,
+      "train": 670,
+      "val": 145
+    },
+    "pedunculo": {
+      "test": 39,
+      "train": 184,
+      "val": 40
+    },
+    "sano": {
+      "test": 145,
+      "train": 677,
+      "val": 145
+    }
+  },
+  "embudo": [
+    {
+      "clase": "antracnosis",
+      "fuente": "avocare_antracnosis",
+      "imagenes": "183",
+      "paso": "inventariadas"
+    },
+    {
+      "clase": "antracnosis",
+      "fuente": "avocare_antracnosis",
+      "imagenes": "183",
+      "paso": "excluida_revision"
+    },
+    {
+      "clase": "antracnosis",
+      "fuente": "kaggle_antracnosis",
+      "imagenes": "1022",
+      "paso": "inventariadas"
+    },
+    {
+      "clase": "antracnosis",
+      "fuente": "kaggle_antracnosis",
+      "imagenes": "288",
+      "paso": "excluida_revision"
+    },
+    {
+      "clase": "antracnosis",
+      "fuente": "kaggle_antracnosis",
+      "imagenes": "398",
+      "paso": "fuera_de_cuota"
+    },
+    {
+      "clase": "antracnosis",
+      "fuente": "kaggle_antracnosis",
+      "imagenes": "336",
+      "paso": "conjunto_final"
+    },
+    {
+      "clase": "antracnosis",
+      "fuente": "rgb_antracnosis",
+      "imagenes": "664",
+      "paso": "inventariadas"
+    },
+    {
+      "clase": "antracnosis",
+      "fuente": "rgb_antracnosis",
+      "imagenes": "42",
+      "paso": "excluida_revision"
+    },
+    {
+      "clase": "antracnosis",
+      "fuente": "rgb_antracnosis",
+      "imagenes": "622",
+      "paso": "conjunto_final"
+    },
+    {
+      "clase": "pedunculo",
+      "fuente": "mdpi_pedunculo",
+      "imagenes": "284",
+      "paso": "inventariadas"
+    },
+    {
+      "clase": "pedunculo",
+      "fuente": "mdpi_pedunculo",
+      "imagenes": "21",
+      "paso": "excluida_revision"
+    },
+    {
+      "clase": "pedunculo",
+      "fuente": "mdpi_pedunculo",
+      "imagenes": "263",
+      "paso": "conjunto_final"
+    },
+    {
+      "clase": "pedunculo",
+      "fuente": "mdpi_pedunculo_sano",
+      "imagenes": "2",
+      "paso": "inventariadas"
+    },
+    {
+      "clase": "pedunculo",
+      "fuente": "mdpi_pedunculo_sano",
+      "imagenes": "2",
+      "paso": "fuera_de_cuota"
+    },
+    {
+      "clase": "sano",
+      "fuente": "avocare_sano",
+      "imagenes": "209",
+      "paso": "inventariadas"
+    },
+    {
+      "clase": "sano",
+      "fuente": "avocare_sano",
+      "imagenes": "209",
+      "paso": "excluida_revision"
+    },
+    {
+      "clase": "sano",
+      "fuente": "hass",
+      "imagenes": "1590",
+      "paso": "inventariadas"
+    },
+    {
+      "clase": "sano",
+      "fuente": "hass",
+      "imagenes": "59",
+      "paso": "excluida_revision"
+    },
+    {
+      "clase": "sano",
+      "fuente": "hass",
+      "imagenes": "991",
+      "paso": "fuera_de_cuota"
+    },
+    {
+      "clase": "sano",
+      "fuente": "hass",
+      "imagenes": "540",
+      "paso": "conjunto_final"
+    },
+    {
+      "clase": "sano",
+      "fuente": "herrera_marin",
+      "imagenes": "17",
+      "paso": "inventariadas"
+    },
+    {
+      "clase": "sano",
+      "fuente": "herrera_marin",
+      "imagenes": "17",
+      "paso": "conjunto_final"
+    },
+    {
+      "clase": "sano",
+      "fuente": "mdpi_pedunculo_sano",
+      "imagenes": "358",
+      "paso": "inventariadas"
+    },
+    {
+      "clase": "sano",
+      "fuente": "mdpi_pedunculo_sano",
+      "imagenes": "20",
+      "paso": "excluida_revision"
+    },
+    {
+      "clase": "sano",
+      "fuente": "mdpi_pedunculo_sano",
+      "imagenes": "338",
+      "paso": "conjunto_final"
+    },
+    {
+      "clase": "sano",
+      "fuente": "rgb_sano",
+      "imagenes": "83",
+      "paso": "inventariadas"
+    },
+    {
+      "clase": "sano",
+      "fuente": "rgb_sano",
+      "imagenes": "11",
+      "paso": "excluida_revision"
+    },
+    {
+      "clase": "sano",
+      "fuente": "rgb_sano",
+      "imagenes": "72",
+      "paso": "conjunto_final"
+    },
+    {
+      "clase": "sano",
+      "fuente": "sano_web",
+      "imagenes": "214",
+      "paso": "inventariadas"
+    },
+    {
+      "clase": "sano",
+      "fuente": "sano_web",
+      "imagenes": "214",
+      "paso": "excluida_licencia"
+    }
+  ],
+  "estado_particion": "provisional",
+  "estados": {
+    "excluida_licencia": 214,
+    "excluida_revision": 833,
+    "provisional": 3579
+  },
+  "faltantes_cuota": {
+    "antracnosis": {
+      "rgb_antracnosis": 42
+    },
+    "pedunculo": {
+      "mdpi_pedunculo": 21
+    },
+    "sano": {
+      "mdpi_pedunculo_sano": 22,
+      "rgb_sano": 11
+    }
+  },
+  "fondo": [
+    {
+      "clase": "sano",
+      "fraccion_uniforme": "1.0000",
+      "fuente": "hass",
+      "natural": "0",
+      "uniforme": "540"
+    },
+    {
+      "clase": "sano",
+      "fraccion_uniforme": "0.0000",
+      "fuente": "herrera_marin",
+      "natural": "17",
+      "uniforme": "0"
+    },
+    {
+      "clase": "sano",
+      "fraccion_uniforme": "0.4615",
+      "fuente": "mdpi_pedunculo_sano",
+      "natural": "182",
+      "uniforme": "156"
+    },
+    {
+      "clase": "sano",
+      "fraccion_uniforme": "0.3750",
+      "fuente": "rgb_sano",
+      "natural": "45",
+      "uniforme": "27"
+    },
+    {
+      "clase": "sano",
+      "fraccion_uniforme": "0.7477",
+      "fuente": "todas",
+      "natural": "244",
+      "uniforme": "723"
+    },
+    {
+      "clase": "antracnosis",
+      "fraccion_uniforme": "1.0000",
+      "fuente": "kaggle_antracnosis",
+      "natural": "0",
+      "uniforme": "336"
+    },
+    {
+      "clase": "antracnosis",
+      "fraccion_uniforme": "0.9051",
+      "fuente": "rgb_antracnosis",
+      "natural": "59",
+      "uniforme": "563"
+    },
+    {
+      "clase": "antracnosis",
+      "fraccion_uniforme": "0.9384",
+      "fuente": "todas",
+      "natural": "59",
+      "uniforme": "899"
+    },
+    {
+      "clase": "pedunculo",
+      "fraccion_uniforme": "0.6350",
+      "fuente": "mdpi_pedunculo",
+      "natural": "96",
+      "uniforme": "167"
+    },
+    {
+      "clase": "pedunculo",
+      "fraccion_uniforme": "0.6350",
+      "fuente": "todas",
+      "natural": "96",
+      "uniforme": "167"
+    }
+  ],
+  "fuentes": [
+    {
+      "clase": "sano",
+      "fuente": "mdpi_pedunculo_sano",
+      "licencia": "CC BY 4.0",
+      "referencia": "Flores et al. (2026), A Lightweight Shallow CNN-Based Approach for Ring-Neck Disease Detection in Avocado Fruits, Computers 15(8):513, doi:10.3390/computers15080513, https://www.mdpi.com/2073-431X/15/8/513",
+      "uso_academico": "si"
+    },
+    {
+      "clase": "sano",
+      "fuente": "hass",
+      "licencia": "CC BY 4.0",
+      "referencia": "Xavier, Rodrigues y Silva (2024), 'Hass' Avocado Ripening Photographic Dataset, Mendeley Data V1, doi:10.17632/3xd9n945v8.1, https://data.mendeley.com/datasets/3xd9n945v8/1",
+      "uso_academico": "si"
+    },
+    {
+      "clase": "sano",
+      "fuente": "avocare_sano",
+      "licencia": "no verificada (fuente excluida)",
+      "referencia": "avocare, Fruit Disease v4, Roboflow Universe, https://universe.roboflow.com/avocare/fruit-disease-f4idq/dataset/4",
+      "uso_academico": "pendiente"
+    },
+    {
+      "clase": "sano",
+      "fuente": "rgb_sano",
+      "licencia": "Artistic-2.0",
+      "referencia": "Castillo-Sanabria y Flores-Riera (2025), Agrocomputation 227 - Avocado RGB Damage Dataset, Hugging Face, https://huggingface.co/datasets/jf-floresriera/agrocomputation_227_avocado_rgb_luis_castillo",
+      "uso_academico": "si"
+    },
+    {
+      "clase": "sano",
+      "fuente": "herrera_marin",
+      "licencia": "permiso de los autores (tesis previa)",
+      "referencia": "Tesis previa de Herrera y Marín, carpeta OneDrive, https://1drv.ms/f/c/1cf3622e6e7d7b73/IgDzsLCZvFmcQIFOn2KzBsDxAUzNP3ef9yVUI130oOKYZIk",
+      "uso_academico": "si"
+    },
+    {
+      "clase": "sano",
+      "fuente": "sano_web",
+      "licencia": "sin licencia identificable (descargas de internet)",
+      "referencia": "Tesis previa de Herrera y Marín, carpeta OneDrive, https://1drv.ms/f/c/1cf3622e6e7d7b73/IgDzsLCZvFmcQIFOn2KzBsDxAUzNP3ef9yVUI130oOKYZIk",
+      "uso_academico": "no"
+    },
+    {
+      "clase": "antracnosis",
+      "fuente": "avocare_antracnosis",
+      "licencia": "no verificada (fuente excluida)",
+      "referencia": "avocare, Fruit Disease v4, Roboflow Universe, https://universe.roboflow.com/avocare/fruit-disease-f4idq/dataset/4",
+      "uso_academico": "pendiente"
+    },
+    {
+      "clase": "antracnosis",
+      "fuente": "rgb_antracnosis",
+      "licencia": "Artistic-2.0",
+      "referencia": "Castillo-Sanabria y Flores-Riera (2025), Agrocomputation 227 - Avocado RGB Damage Dataset, Hugging Face, https://huggingface.co/datasets/jf-floresriera/agrocomputation_227_avocado_rgb_luis_castillo",
+      "uso_academico": "si"
+    },
+    {
+      "clase": "antracnosis",
+      "fuente": "kaggle_antracnosis",
+      "licencia": "Data files © Original Authors; sin licencia abierta. Uso académico: el autor la publicó para que otros la usen y se cita la fuente (spec 002)",
+      "referencia": "Camposfe1, Clasificación de enfermedades del aguacatero (tesis, Universidad Autónoma Chapingo), Kaggle, https://www.kaggle.com/datasets/camposfe1/clasifiacin-de-enfermedades-del-aguacatero",
+      "uso_academico": "si"
+    },
+    {
+      "clase": "pedunculo",
+      "fuente": "mdpi_pedunculo",
+      "licencia": "CC BY 4.0",
+      "referencia": "Flores et al. (2026), A Lightweight Shallow CNN-Based Approach for Ring-Neck Disease Detection in Avocado Fruits, Computers 15(8):513, doi:10.3390/computers15080513, https://www.mdpi.com/2073-431X/15/8/513",
+      "uso_academico": "si"
+    },
+    {
+      "clase": "sano",
+      "fuente": "campo_sigchos_sano",
+      "licencia": "propia",
+      "referencia": "GAD Municipal de Sigchos",
+      "uso_academico": "si"
+    },
+    {
+      "clase": "antracnosis",
+      "fuente": "campo_sigchos_antracnosis",
+      "licencia": "propia",
+      "referencia": "GAD Municipal de Sigchos",
+      "uso_academico": "si"
+    },
+    {
+      "clase": "pedunculo",
+      "fuente": "campo_sigchos_pedunculo",
+      "licencia": "propia",
+      "referencia": "GAD Municipal de Sigchos",
+      "uso_academico": "si"
+    }
+  ],
+  "huella_particion": "096faf72d19fd58e0714c998fa4afefa97a6b97df4172fbdea6f3f73365a4bef",
+  "huella_representaciones": "d44a400de5af4d038a9243e22866dfc5a2a7f9f3267ec848ba7e9d7dbc7ba823",
+  "pesos_clase": {
+    "antracnosis": 0.7617,
+    "pedunculo": 2.7736,
+    "sano": 0.7538
+  },
+  "revision": {
+    "casos_para_experto": [],
+    "decididas": 374,
+    "marcadas": 374,
+    "por_decision": {
+      "excluir": 153,
+      "mantener": 553,
+      "reasignar": 2
+    }
+  },
+  "rotulos_tsne": [
+    "0a40ed3658709a02",
+    "22a9295924560f0d",
+    "5063aa0794b6403a",
+    "53257291b0430ec2",
+    "5a050faca8dba779",
+    "6d13642555c6283d",
+    "6e295051a0261e1c",
+    "757bf96431e4a249",
+    "8005f739e22926ab",
+    "8e6858c3f0fd4469",
+    "a8210a53345cfc0e",
+    "c29c0cde2c7a5b0b",
+    "cba8de6951b58023",
+    "ccc4fec537fe1557",
+    "f184873982b6c683"
+  ],
+  "semilla": 42,
+  "sondas": [
+    {
+      "alerta": "no",
+      "azar": "0.3333",
+      "conjuntos": "train+val",
+      "descripcion": "Clase desde brillo, contraste, nitidez, color, tamaño y fondo (sin la fuente)",
+      "exactitud_balanceada": "0.7764",
+      "n": "1861",
+      "sonda": "bajo_nivel"
+    },
+    {
+      "alerta": "si",
+      "azar": "0.3333",
+      "conjuntos": "train+val",
+      "descripcion": "Clase desde la imagen con el 60 % central tapado (solo el borde)",
+      "exactitud_balanceada": "0.9524",
+      "n": "1861",
+      "sonda": "fondo"
+    },
+    {
+      "alerta": "",
+      "azar": "0.3333",
+      "conjuntos": "train+val",
+      "descripcion": "Referencia: clase desde la imagen completa (clasificador lineal)",
+      "exactitud_balanceada": "0.9950",
+      "n": "1861",
+      "sonda": "imagen_completa"
+    },
+    {
+      "alerta": "",
+      "azar": "0.2500",
+      "conjuntos": "train+val",
+      "descripcion": "Fuente dentro de la clase sano desde la imagen completa",
+      "exactitud_balanceada": "0.9959",
+      "n": "822",
+      "sonda": "fuente_sano"
+    },
+    {
+      "alerta": "",
+      "azar": "0.5000",
+      "conjuntos": "train+val",
+      "descripcion": "Fuente dentro de la clase antracnosis desde la imagen completa",
+      "exactitud_balanceada": "1.0000",
+      "n": "815",
+      "sonda": "fuente_antracnosis"
+    }
+  ],
+  "sospechas": {
+    "antracnosis": {
+      "a_revisar": 140,
+      "candidatas": 1398,
+      "conflictos": 0
+    },
+    "pedunculo": {
+      "a_revisar": 29,
+      "candidatas": 286,
+      "conflictos": 0
+    },
+    "sano": {
+      "a_revisar": 205,
+      "candidatas": 2048,
+      "conflictos": 3
+    }
+  },
+  "version_tensorflow": "2.20.0"
+}

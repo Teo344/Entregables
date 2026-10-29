@@ -37,3 +37,7 @@ __pycache__/
 
 # speckit-metricas: estado de sesion local y salidas regenerables
 metricas/
+# ETL y EDA (spec 002): entorno de análisis, caché de representaciones y planillas en curso
+.venv-ml/
+/datos/eda/cache/
+/datos/revision/**/*.xlsx

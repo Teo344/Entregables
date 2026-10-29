@@ -1,28 +1,36 @@
 {
   "decisiones_ausentes": [],
-  "generado": "2026-10-26T08:36:33",
+  "generado": "2026-10-26T14:52:04",
   "grupos": 2843,
+  "grupos_partidos": [],
   "por_clase": {
     "antracnosis": 1869,
     "pedunculo": 284,
     "sano": 2473
   },
   "por_estado": {
-    "excluida_revision": 680,
-    "provisional": 3946
+    "excluida_licencia": 214,
+    "excluida_revision": 833,
+    "provisional": 3579
   },
   "por_fuente": {
     "avocare_antracnosis": 183,
     "avocare_sano": 209,
     "hass": 1590,
+    "herrera_marin": 17,
     "kaggle_antracnosis": 1022,
     "mdpi_pedunculo": 284,
     "mdpi_pedunculo_sano": 360,
     "rgb_antracnosis": 664,
     "rgb_sano": 83,
-    "sano_web": 231
+    "sano_web": 214
+  },
+  "revision_autores": {
+    "excluir": 153,
+    "mantener": 553,
+    "reasignar": 2
   },
   "semilla": 42,
   "total_archivos": 4626,
-  "version_config": "2b510c34d9c505a536c414cb1af14318ea6dfbe217e8c312a52c7e983f881a78"
+  "version_config": "46897064682c9ea9b4157adcebef28f06055a7135870eb960bc028ab3660ff1e"
 }

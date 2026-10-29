@@ -1,10 +1,10 @@
 # Informe del conjunto de datos AvocadoIA
 
-- **Generado**: 2026-10-26T08:36:37
+- **Generado**: 2026-10-26T14:53:27
 - **Estado de la partición**: **provisional**
 - **Semilla**: 42
-- **Versión de configuración**: `2b510c34d9c505a5`
-- **Huella de la partición**: `001e3a7c62a6d3ac`
+- **Versión de configuración**: `46897064682c9ea9`
+- **Huella de la partición**: `096faf72d19fd58e`
 
 > **Partición provisional.** Contiene imágenes con validación del experto o licencia pendientes. Sirve para desarrollar y depurar el entrenamiento; ninguna métrica reportada en la tesis puede provenir de ella (constitución §II, FR-018).
 
@@ -12,40 +12,42 @@
 
 | Clase | Train | Val | Test | Total |
 |---|---:|---:|---:|---:|
-| Sano | 700 | 150 | 150 | 1000 |
-| Antracnosis | 700 | 151 | 149 | 1000 |
-| Síntomas compatibles con anillado del pedúnculo | 199 | 43 | 42 | 284 |
-| **Total** | **1599** | **344** | **341** | **2284** |
+| Sano | 677 | 145 | 145 | 967 |
+| Antracnosis | 670 | 145 | 143 | 958 |
+| Síntomas compatibles con anillado del pedúnculo | 184 | 40 | 39 | 263 |
+| **Total** | **1531** | **330** | **327** | **2188** |
 
 Proporción de cada partición dentro de la clase:
 
 | Clase | Train | Val | Test |
 |---|---:|---:|---:|
 | Sano | 70.0 % | 15.0 % | 15.0 % |
-| Antracnosis | 70.0 % | 15.1 % | 14.9 % |
-| Síntomas compatibles con anillado del pedúnculo | 70.1 % | 15.1 % | 14.8 % |
+| Antracnosis | 69.9 % | 15.1 % | 14.9 % |
+| Síntomas compatibles con anillado del pedúnculo | 70.0 % | 15.2 % | 14.8 % |
 
 ## Distribución por fuente
 
 | Clase | Fuente | Train | Val | Test | Total | Reserva |
 |---|---|---:|---:|---:|---:|---:|
-| Sano | `hass` | 277 | 60 | 59 | 396 | 1194 |
-| Sano | `mdpi_pedunculo_sano` | 252 | 54 | 54 | 360 | 0 |
-| Sano | `rgb_sano` | 58 | 12 | 13 | 83 | 0 |
-| Sano | `sano_web` | 113 | 24 | 24 | 161 | 70 |
-| Antracnosis | `kaggle_antracnosis` | 235 | 52 | 49 | 336 | 398 |
-| Antracnosis | `rgb_antracnosis` | 465 | 99 | 100 | 664 | 0 |
-| Síntomas compatibles con anillado del pedúnculo | `mdpi_pedunculo` | 199 | 43 | 42 | 284 | 0 |
+| Sano | `hass` | 379 | 81 | 80 | 540 | 991 |
+| Sano | `herrera_marin` | 13 | 2 | 2 | 17 | 0 |
+| Sano | `mdpi_pedunculo_sano` | 235 | 51 | 52 | 338 | 0 |
+| Sano | `rgb_sano` | 50 | 11 | 11 | 72 | 0 |
+| Antracnosis | `kaggle_antracnosis` | 235 | 51 | 50 | 336 | 398 |
+| Antracnosis | `rgb_antracnosis` | 435 | 94 | 93 | 622 | 0 |
+| Síntomas compatibles con anillado del pedúnculo | `mdpi_pedunculo` | 184 | 40 | 39 | 263 | 0 |
+
+Faltantes de cuota: antracnosis/rgb_antracnosis: 42; pedunculo/mdpi_pedunculo: 21; sano/mdpi_pedunculo_sano: 22; sano/rgb_sano: 11
 
 ## Desbalance y pesos de clase sugeridos (entrenamiento)
 
-Razón de desbalance (clase mayor / menor en train): **3.52**
+Razón de desbalance (clase mayor / menor en train): **3.68**
 
 | Clase | Imágenes en train | Peso sugerido `N/(K·n_c)` |
 |---|---:|---:|
-| Sano | 700 | 0.7614 |
-| Antracnosis | 700 | 0.7614 |
-| Síntomas compatibles con anillado del pedúnculo | 199 | 2.6784 |
+| Sano | 677 | 0.7538 |
+| Antracnosis | 670 | 0.7617 |
+| Síntomas compatibles con anillado del pedúnculo | 184 | 2.7736 |
 
 Como las clases están desbalanceadas, OE3 debe reportar F1 macro además de la exactitud.
 
@@ -53,18 +55,18 @@ Como las clases están desbalanceadas, OE3 debe reportar F1 macro además de la 
 
 | Estado | Archivos |
 |---|---:|
-| Excluida por revisión (fuente aumentada o sin lesión visible) | 680 |
-| Provisional (validación o licencia pendiente) | 3946 |
+| Excluida: la fuente no permite uso académico | 214 |
+| Excluida por revisión (fuente aumentada, sin lesión visible o decisión de los autores) | 833 |
+| Provisional (validación o licencia pendiente) | 3579 |
 
-Reserva (elegibles fuera de la muestra): **1662** imágenes.
-En la muestra: validación pendiente 2284, licencia pendiente 2284. Decisiones del experto sobre imágenes ausentes: 0.
+Reserva (elegibles fuera de la muestra): **1391** imágenes.
+En la muestra: validación pendiente 2188, licencia pendiente 0. Decisiones del experto sobre imágenes ausentes: 0.
 
 ## Advertencias de calidad
 
 | Tipo | Imágenes |
 |---|---:|
-| aspecto | 1 |
-| borrosa | 101 |
+| borrosa | 95 |
 
 Detalle por imagen en `datos/advertencias.csv`.
 

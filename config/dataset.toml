@@ -12,10 +12,12 @@ test = 0.15
 # Cuotas por fuente dentro de cada clase (claves = columna `fuente` de fuentes.csv).
 # Revisión 2026-10-26: avocare_ excluida (copias aumentadas; ver datos/curacion/exclusiones_revision.csv).
 [cuotas.sano]
+# Revisión 2026-10-26 (spec 002, research E5): sano_web se divide; sus descargas de internet quedan
+# excluidas por licencia y se reemplazan con segundas vistas de frutos Hass (mismo conjunto que su fruto).
 mdpi_pedunculo_sano = 360
-hass = 396          # una foto por fruto: los 396 frutos de la serie
+hass = 540          # 396 frutos + 144 segundas vistas
 rgb_sano = 83
-sano_web = 161
+herrera_marin = 17  # fotos propias de la tesis previa, con permiso
 
 [cuotas.antracnosis]
 rgb_antracnosis = 664      # todas

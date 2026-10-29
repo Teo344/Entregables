@@ -8,12 +8,13 @@ from datetime import datetime
 from PIL import Image
 
 from avocadoia_datos import grupos
+from avocadoia_datos.etl import revision
 from avocadoia_datos.clases import CARPETA_CAMPO, CARPETAS, CLASES, PARTICIONES, es_imagen
 from avocadoia_datos.es_csv import escribir_csv, escribir_json, leer_csv, sha256_bytes
 
 COLUMNAS = ("ruta", "id_contenido", "sha256", "clase_propuesta", "clase_efectiva", "fuente", "licencia",
             "uso_academico", "ancho", "alto", "formato", "modo", "particion_origen", "grupo", "canonica",
-            "duplicado_de", "validacion", "estado", "en_muestra", "motivo")
+            "duplicado_de", "validacion", "estado", "en_muestra", "motivo", "revision_autores", "atajo")
 
 DECISIONES_VALIDAS = ("aceptada", "rechazada", "reasignada", "mixto")
 _ORIENTACION_ROTADA = (5, 6, 7, 8)
@@ -78,6 +79,8 @@ def _estado(fila, fuente, decision, exclusion):
         return "excluida_conflicto", "El mismo contenido aparece en clases distintas"
     if fila["canonica"] == "no":
         return "duplicada", f"Copia exacta de {fila['duplicado_de']}"
+    if fuente is not None and fuente.uso_academico == "no":
+        return "excluida_licencia", "La fuente no permite uso académico"
     # La decisión del experto prevalece sobre la exclusión por revisión.
     if exclusion is not None and decision not in ("aceptada", "reasignada"):
         return "excluida_revision", exclusion
@@ -144,18 +147,34 @@ def construir(config, raiz_imagenes, salida, ruta_confirmados):
         confirmados[f"sim:{clave}"] = rutas
     grupo_de = grupos.asignar_grupos(filas, confirmados)
     exclusiones = cargar_exclusiones(os.path.join(curacion, "exclusiones_revision.csv"))
+    # Decisiones de los autores (spec 002, research E4); la del experto prevalece.
+    filas_revision = leer_csv(os.path.join(curacion, "revision_etiquetas.csv"))
+    revision_autores = revision.decisiones_vigentes(
+        filas_revision, {f["id_contenido"]: grupo_de[f["ruta"]] for f in filas if f["canonica"] == "si"})
 
     for fila in filas:
         decision = decisiones.get(fila["id_contenido"])
         tipo = decision["decision"] if decision else ""
         fila["validacion"] = tipo if tipo in DECISIONES_VALIDAS else "pendiente"
+        autores = revision_autores.get(fila["id_contenido"]) or {}
+        fila["revision_autores"] = autores.get("decision", "")
+        fila["atajo"] = autores.get("atajo", "")
         nueva = (decision or {}).get("clase_nueva", "")
-        fila["clase_efectiva"] = nueva if tipo == "reasignada" and nueva in CLASES else fila["clase_propuesta"]
+        if tipo == "reasignada" and nueva in CLASES:
+            fila["clase_efectiva"] = nueva
+        elif not decision and autores.get("decision") == "reasignar" and autores.get("clase_nueva") in CLASES:
+            fila["clase_efectiva"] = autores["clase_nueva"]
+        else:
+            fila["clase_efectiva"] = fila["clase_propuesta"]
         fila["grupo"] = grupo_de[fila["ruta"]]
-        fila["estado"], fila["motivo"] = _estado(fila, fila["_fuente"], tipo, exclusiones.get(fila["ruta"]))
+        exclusion = exclusiones.get(fila["ruta"])
+        if autores.get("decision") == "excluir":
+            exclusion = f"Autores: {autores.get('comentario') or 'excluida en la revisión'}"
+        fila["estado"], fila["motivo"] = _estado(fila, fila["_fuente"], tipo, exclusion)
         fila["en_muestra"] = previas.get(fila["ruta"], "no") if fila["estado"] in ("elegible", "provisional") else "no"
 
     filas.sort(key=lambda f: f["ruta"])
+    grupo_de_id = {f["id_contenido"]: f["grupo"] for f in filas}
     presentes = {f["id_contenido"] for f in filas}
     metadatos = {
         "generado": datetime.now().isoformat(timespec="seconds"),
@@ -167,6 +186,9 @@ def construir(config, raiz_imagenes, salida, ruta_confirmados):
         "por_fuente": dict(sorted(Counter(f["fuente"] for f in filas).items())),
         "grupos": len({f["grupo"] for f in filas if f["canonica"] == "si"}),
         "decisiones_ausentes": sorted(i for i in decisiones if i not in presentes),
+        "revision_autores": dict(sorted(Counter(f["revision_autores"] for f in filas if f["revision_autores"]).items())),
+        "grupos_partidos": revision.grupos_partidos(
+            filas, {grupo_de_id.get(d["id_contenido"]) for d in filas_revision if d.get("alcance") == "imagen"}),
     }
     return filas, metadatos
 

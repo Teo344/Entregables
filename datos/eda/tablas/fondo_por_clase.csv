@@ -1,0 +1,11 @@
+clase,fuente,uniforme,natural,fraccion_uniforme
+sano,hass,540,0,1.0000
+sano,herrera_marin,0,17,0.0000
+sano,mdpi_pedunculo_sano,156,182,0.4615
+sano,rgb_sano,27,45,0.3750
+sano,todas,723,244,0.7477
+antracnosis,kaggle_antracnosis,336,0,1.0000
+antracnosis,rgb_antracnosis,563,59,0.9051
+antracnosis,todas,899,59,0.9384
+pedunculo,mdpi_pedunculo,167,96,0.6350
+pedunculo,todas,167,96,0.6350
