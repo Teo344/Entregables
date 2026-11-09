@@ -93,3 +93,39 @@ def test_bn_congelada_en_fase2():
     assert not any(c.trainable for c in capas if isinstance(c, keras.layers.BatchNormalization))
     assert capas[-1].trainable or isinstance(capas[-1], keras.layers.BatchNormalization) or capas[-2].trainable
     assert not capas[0].trainable
+
+
+def test_cam_equivale_a_cabeza():
+    """T031: con GAP → Dense, la media espacial de CAM (sin ReLU ni normalizar) = logit − sesgo."""
+    from avocadoia_modelo import arquitecturas, explicacion
+
+    modelo, _, _ = arquitecturas.construir("mobilenetv3", pesos=None)
+    x = np.random.default_rng(1).integers(0, 255, (2, 224, 224, 3)).astype(np.float32)
+    clases = np.array([0, 2])
+    mapas = explicacion.cam(modelo, x, clases, normalizar=False)
+    logits = modelo.predict(x, verbose=0)
+    sesgo = modelo.get_layer("logits").get_weights()[1]
+    esperado = logits[np.arange(2), clases] - sesgo[clases]
+    assert np.allclose(mapas.mean(axis=(1, 2)), esperado, atol=1e-3)
+
+
+def test_gradcam_forma_y_rango():
+    from avocadoia_modelo import arquitecturas, explicacion
+
+    modelo, _, _ = arquitecturas.construir("efficientnetb0", pesos=None)
+    x = np.random.default_rng(2).integers(0, 255, (3, 224, 224, 3)).astype(np.float32)
+    m = explicacion.gradcam_pp(modelo, x, np.array([0, 1, 2]))
+    assert m.shape == (3, 7, 7) and m.min() >= 0 and m.max() <= 1
+
+
+def test_spike_explain(tmp_path):
+    """T030: el spike corre de punta a punta y deja resultado.json con una decisión."""
+    from avocadoia_modelo import exportacion
+
+    cache, _ = _cache_sintetica(tmp_path)
+    repo = str(tmp_path / "repo")
+    res = exportacion.spike_explain(_cfg(), cache, repo, str(tmp_path / "drive"), pesos=None, n_comparar=3)
+    assert res["decision"] in ("gradcam++", "cam", "sin_explain")
+    assert res["variante_cam"]["convierte"], res["variante_cam"]["error"]
+    assert os.path.exists(os.path.join(repo, "spike_explain", "resultado.json"))
+    assert os.path.exists(os.path.join(repo, "spike_explain", "comparacion.png"))

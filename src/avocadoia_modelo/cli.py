@@ -38,6 +38,12 @@ def _parser():
     pe.add_argument("--semilla", required=True, type=int)
     pv = sub.add_parser("evaluar", parents=[comun], help="Evalúa una corrida (val y test)")
     pv.add_argument("--corrida", required=True)
+    px = sub.add_parser("explicar", parents=[comun], help="Mapas Grad-CAM++ de aciertos y errores + planilla")
+    px.add_argument("--corrida", required=True)
+    pr = sub.add_parser("resumir-explicaciones", parents=[comun], help="Resume la planilla valorada")
+    pr.add_argument("--corrida", required=True)
+    ps = sub.add_parser("spike-explain", parents=[comun], help="Prueba la firma explain en TFLite (M14)")
+    ps.add_argument("--corrida", help="modelo entrenado a usar; sin él, entrena 1 época solo para la prueba")
     return p
 
 
@@ -171,6 +177,52 @@ def _imprimir_metricas(id_, res):
               f"recall {rec}" + ("  [EXPERIMENTAL]" if m["experimental"] else ""))
 
 
+def _cmd_explicar(args):
+    from avocadoia_modelo import explicacion
+
+    cfg, r = _rutas(args)
+    ver, cache, error = _verificacion_y_cache(r)
+    if error:
+        print(f"Error: {error}", file=sys.stderr)
+        return ERROR_DATOS
+    info = explicacion.generar(cfg, args.corrida, cache, r["repo_datos"], r["salida"], ver)
+    cal = "calibrada" if info["confianza_calibrada"] else "SIN calibrar (T = 1; ejecute `calibrar` antes)"
+    print(f"{info['n_mapas']} mapas en {r['repo_datos']}/explicaciones/{args.corrida}/ · confianza {cal}")
+    print("Valore planilla_explicaciones.csv (lesion_fruto | fondo_ajeno | ambiguo) y ejecute resumir-explicaciones")
+    return EXITO
+
+
+def _cmd_resumir_explicaciones(args):
+    from avocadoia_modelo import explicacion
+
+    cfg, r = _rutas(args)
+    res = explicacion.resumir_corrida(r["repo_datos"], args.corrida, cfg["explicacion"]["umbral_atajo"])
+    for c, v in res["por_clase"].items():
+        print(f"  {c}: {v['valoradas']} valoradas · lesión/fruto {v['lesion_fruto']:.0%} · "
+              f"fondo/ajeno {v['fondo_ajeno']:.0%} · ambiguo {v['ambiguo']:.0%}")
+    print(f"Posibles atajos: {res['posibles_atajos'] or 'ninguno'} · SC-005 {'cumple' if res['cumple_sc005'] else 'NO cumple'}"
+          f" · sin valorar: {res['sin_valorar']}")
+    return EXITO
+
+
+def _cmd_spike_explain(args):
+    from avocadoia_modelo import exportacion
+
+    cfg, r = _rutas(args)
+    _, cache, error = _verificacion_y_cache(r)
+    if error:
+        print(f"Error: {error}", file=sys.stderr)
+        return ERROR_DATOS
+    res = exportacion.spike_explain(cfg, cache, r["repo_datos"], r["salida"], args.corrida)
+    for clave in ("variante_gradientes", "variante_cam"):
+        v = res[clave]
+        detalle = (f"+{v['tamano_extra_mb']} MB · Pearson {v.get('pearson_medio')} · IoU {v.get('iou_top20_medio')}"
+                   if v["convierte"] else v["error"][:200])
+        print(f"  {clave}: {'convierte' if v['convierte'] else 'NO convierte'} · {detalle}")
+    print(f"Decisión: {res['decision']} (plan B aplicado: {res['plan_b_aplicado']})")
+    return EXITO
+
+
 def _cmd_importar(args):
     from avocadoia_modelo import registro
 
@@ -184,7 +236,8 @@ def _cmd_importar(args):
 
 
 COMANDOS = {"verificar": _cmd_verificar, "importar": _cmd_importar, "preparar": _cmd_preparar,
-            "entrenar": _cmd_entrenar, "evaluar": _cmd_evaluar}
+            "entrenar": _cmd_entrenar, "evaluar": _cmd_evaluar, "explicar": _cmd_explicar,
+            "resumir-explicaciones": _cmd_resumir_explicaciones, "spike-explain": _cmd_spike_explain}
 
 
 def main(argv=None):

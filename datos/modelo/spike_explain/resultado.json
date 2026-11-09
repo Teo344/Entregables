@@ -1,0 +1,23 @@
+{
+  "decision": "gradcam++",
+  "fecha": "2026-11-09",
+  "origen": "corrida 20261109-2246_mobilenetv3_s42_6691b967",
+  "plan_b_aplicado": false,
+  "tamano_base_mb": 11.344,
+  "variante_cam": {
+    "convierte": true,
+    "error": "",
+    "iou_top20_medio": 0.7474,
+    "pearson_medio": 0.8799,
+    "segundos_conversion": 9.7,
+    "tamano_extra_mb": 0.055
+  },
+  "variante_gradientes": {
+    "convierte": true,
+    "error": "",
+    "iou_top20_medio": 1.0,
+    "pearson_medio": 1.0,
+    "segundos_conversion": 9.9,
+    "tamano_extra_mb": 0.058
+  }
+}

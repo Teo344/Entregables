@@ -166,6 +166,16 @@ Cada decisión se identifica como **M<n>** para citarla desde el plan, las tarea
 - **Rationale**: elimina el riesgo técnico más incierto de la constitución con un plan B que no requiere
   servidor (principio I).
 
+### M14.1 Resultado del spike (2026-11-09, corrida `20261109-2246_mobilenetv3_s42_6691b967`)
+
+- **Grad-CAM++ con gradientes dentro del grafo SÍ convierte** a TFLite usando solo `TFLITE_BUILTINS`
+  (sin operaciones de TensorFlow seleccionadas): +0,058 MB sobre el modelo base de 11,3 MB (fp32); el mapa de
+  la firma `explain` coincide con el calculado en Python (Pearson 1,0; IoU del 20 % superior 1,0) en 20
+  imágenes de validación. Conversión ≈ 10 s en CPU.
+- CAM también convierte (+0,055 MB) pero concuerda menos con Grad-CAM++ (Pearson 0,88; IoU 0,75).
+- **Decisión**: la firma `explain` del modelo de producción usa **Grad-CAM++** (`metadatos.json →
+  explicacion.metodo = "gradcam++"`); el plan B no se aplica. Evidencia en `datos/modelo/spike_explain/`.
+
 ## M15. Exportación a TFLite con calibración embebida
 
 - **Decision**: se construye un modelo de inferencia `entrada float32 [1,224,224,3] (0–255) →

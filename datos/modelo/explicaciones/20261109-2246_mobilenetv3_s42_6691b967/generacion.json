@@ -1,0 +1,8 @@
+{
+  "confianza_calibrada": false,
+  "corrida": "20261109-2246_mobilenetv3_s42_6691b967",
+  "fecha": "2026-11-09",
+  "instrucciones": "Valorar cada fila: lesion_fruto | fondo_ajeno | ambiguo; luego resumir-explicaciones",
+  "n_mapas": 30,
+  "temperatura": 1.0
+}
