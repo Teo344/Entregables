@@ -136,3 +136,93 @@ def arbol_completo(arbol):
     for i in range(4):
         arbol.agregar(f"PEDUNCULO/DRIVE_CANDIDATAS/c{i:03d}.jpg")
     return arbol
+
+
+# --- Spec 003: escenario sintético del split v4 para avocadoia_modelo -------------------------------
+
+FUENTES_MODELO_CSV = """fuente,clase,patron,descripcion,referencia,licencia,uso_academico,particion_origen,regla_grupo,rol
+hass,sano,AGUACATESANOS/hass_*,Hass,ref,CC BY 4.0,si,no,ninguna,general
+avocare_sano,sano,AGUACATESANOS/avocare_*,avocare,ref,CC BY 4.0,si,no,ninguna,general
+herrera_marin,sano,AGUACATESANOS/sano-000[1-9].*|AGUACATESANOS/sano-001[0-7].*,Propias,ref,permiso,si,no,ninguna,general
+sano_web,sano,AGUACATESANOS/sano-*,Web,ref,sin licencia,no,no,ninguna,general
+avocare_antracnosis,antracnosis,ANTRACNOSIS/avocare_*,avocare,ref,pendiente,pendiente,no,ninguna,general
+rgb_antracnosis,antracnosis,ANTRACNOSIS/rgb_*,RGB,ref,CC BY 4.0,si,no,ninguna,general
+mdpi_pedunculo,pedunculo,PEDUNCULO/DRIVE_*/*,MDPI,ref,CC BY 4.0,si,si,ninguna,general
+"""
+
+DATASET_MODELO_TOML = """semilla = 42
+max_por_clase = 100
+
+[proporciones]
+train = 0.70
+val = 0.15
+test = 0.15
+"""
+
+
+class EscenarioModelo:
+    """Mini split v4: raíz de imágenes, manifiesto v4, manifiesto de 002, fuentes y modelo.toml."""
+
+    COLUMNAS_V4 = ("ruta_origen", "ruta_destino", "clase_original", "conjunto", "sha256", "estado_etiqueta",
+                   "procedencia", "grupo_duplicacion_escena")
+    COLUMNAS_002 = ("ruta", "sha256", "fuente", "grupo", "canonica", "estado")
+
+    def __init__(self, base):
+        import tomllib
+        from avocadoia_datos.es_csv import escribir_csv, sha256_archivo
+        self._escribir_csv, self._sha = escribir_csv, sha256_archivo
+        self.base = str(base)
+        self.raiz = os.path.join(self.base, "v4")
+        self.fuentes = os.path.join(self.base, "fuentes.csv")
+        self.dataset = os.path.join(self.base, "dataset.toml")
+        self.manifiesto_002 = os.path.join(self.base, "manifiesto_002.csv")
+        self.manifiesto = os.path.join(self.raiz, "reportes", "manifiesto_split.csv")
+        self.repo_datos = os.path.join(self.base, "repo_datos")
+        self.salida = os.path.join(self.base, "drive")
+        with open(self.fuentes, "w", encoding="utf-8") as fh:
+            fh.write(FUENTES_MODELO_CSV)
+        with open(self.dataset, "w", encoding="utf-8") as fh:
+            fh.write(DATASET_MODELO_TOML)
+        with open("config/modelo.toml", "rb") as fh:
+            self.cfg = tomllib.load(fh)
+        self.cfg["filtros"].update(dataset_002=self.dataset, fuentes_002=self.fuentes,
+                                   manifiesto_002=self.manifiesto_002)
+        self.cfg["_entorno"] = "pc"
+        self.cfg["_rutas"] = {"repo_datos": self.repo_datos, "raiz_imagenes": self.raiz,
+                              "manifiesto": self.manifiesto, "salida": self.salida}
+        self.filas_v4, self.filas_002 = [], []
+        self._semilla = 0
+
+    def agregar(self, ruta_origen, clase, particion, registro_002=None, grupo_002=None, crear=True,
+                estado="ETIQUETA_PROVISIONAL", contenido_de=None):
+        """Agrega una imagen al v4. registro_002 = fuente con que figura en el manifiesto de 002 (o None)."""
+        self._semilla += 1
+        nombre = os.path.basename(ruta_origen)
+        destino = f"{particion}/{clase}/{nombre}"
+        ruta_abs = os.path.join(self.raiz, destino)
+        if contenido_de is not None:
+            os.makedirs(os.path.dirname(ruta_abs), exist_ok=True)
+            with open(contenido_de, "rb") as src, open(ruta_abs, "wb") as dst:
+                dst.write(src.read())
+        else:
+            imagen(ruta_abs, self._semilla, tamano=(96, 64))
+        sha = self._sha(ruta_abs)
+        if not crear:
+            os.remove(ruta_abs)
+        self.filas_v4.append({"ruta_origen": ruta_origen, "ruta_destino": destino, "clase_original": clase,
+                              "conjunto": particion, "sha256": sha, "estado_etiqueta": estado,
+                              "procedencia": "reporte_x.csv", "grupo_duplicacion_escena": f"sha256:{sha}"})
+        if registro_002:
+            self.filas_002.append({"ruta": ruta_origen, "sha256": sha, "fuente": registro_002,
+                                   "grupo": grupo_002 or sha[:16], "canonica": "si", "estado": "provisional"})
+        return ruta_abs
+
+    def escribir(self):
+        self._escribir_csv(self.manifiesto, self.COLUMNAS_V4, self.filas_v4)
+        self._escribir_csv(self.manifiesto_002, self.COLUMNAS_002, self.filas_002)
+        return self
+
+
+@pytest.fixture
+def escenario_modelo(tmp_path):
+    return EscenarioModelo(tmp_path)

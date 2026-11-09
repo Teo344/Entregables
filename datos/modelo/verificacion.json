@@ -1,0 +1,822 @@
+{
+  "clases_desconocidas": [],
+  "conteos": {
+    "test": {
+      "antracnosis": 123,
+      "pedunculo": 31,
+      "sano": 54
+    },
+    "train": {
+      "antracnosis": 573,
+      "pedunculo": 148,
+      "sano": 277
+    },
+    "val": {
+      "antracnosis": 127,
+      "pedunculo": 32,
+      "sano": 61
+    }
+  },
+  "conteos_entrada": {
+    "test": {
+      "antracnosis": 150,
+      "pedunculo": 31,
+      "sano": 150
+    },
+    "train": {
+      "antracnosis": 700,
+      "pedunculo": 148,
+      "sano": 700
+    },
+    "val": {
+      "antracnosis": 150,
+      "pedunculo": 32,
+      "sano": 150
+    }
+  },
+  "estado": "ok_con_avisos",
+  "etiquetas_provisionales": {
+    "test": 148,
+    "train": 738,
+    "val": 155
+  },
+  "excluidas": {
+    "por_fuente": {
+      "avocare_antracnosis": {
+        "motivo": "calidad:copias_aumentadas_roboflow_v4",
+        "n": 177,
+        "uso_academico": "si"
+      },
+      "avocare_sano": {
+        "motivo": "calidad:copias_aumentadas_roboflow_v4",
+        "n": 196,
+        "uso_academico": "si"
+      },
+      "sano_web": {
+        "motivo": "licencia:sano_web:no",
+        "n": 412,
+        "uso_academico": "no"
+      }
+    },
+    "por_motivo": {
+      "calidad:copias_aumentadas_roboflow_v4": 373,
+      "licencia:sano_web:no": 412
+    },
+    "por_particion_clase": {
+      "test": {
+        "antracnosis": 27,
+        "sano": 96
+      },
+      "train": {
+        "antracnosis": 127,
+        "sano": 423
+      },
+      "val": {
+        "antracnosis": 23,
+        "sano": 89
+      }
+    },
+    "total": 785
+  },
+  "faltantes": [],
+  "fecha": "2026-11-09T11:52:03",
+  "fuga_por_fruto": {
+    "detalle": [
+      {
+        "grupo": "008533f0ce5d6889",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "00c5013df9497c59",
+        "n": 5,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "028b266c413490cb",
+        "n": 5,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "02ce7c8254d280e1",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "030b2d889ba9f21d",
+        "n": 3,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "0438d8ecd8b7af8d",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "04b19cc7d846124e",
+        "n": 5,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "052b05f30d39da61",
+        "n": 5,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "089f37cfff560cfe",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "09d84175ff2ac53e",
+        "n": 5,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "0b12e45db91b9e64",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "0c3bd99ace11a2bb",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "0dd4a25d648d5f19",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "0e3f4cf4d33f714f",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "0e4276f4c2d5e15a",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "125d9f9d097e9107",
+        "n": 5,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "12ae85cb097bd129",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "12f4d8ed57532677",
+        "n": 5,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "1340e7b64cc0e121",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "13c99c57284059e3",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "162a7d22525827aa",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "1813b47ae7367092",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "1bda7bcf4c3114b0",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "1c391b69602875ea",
+        "n": 5,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "1de12933b06e6041",
+        "n": 2,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "1ea573cb92a7dda8",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "1eda24cd88230c3c",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "204086e9a48ffd08",
+        "n": 2,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "21d396784076bae5",
+        "n": 5,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "22b880079c9b8638",
+        "n": 5,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "266c2bc8da1947bc",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "29d9eb32ea79269b",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "2d95545b51971993",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "2e164331622f879b",
+        "n": 3,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "2fe5d9cc3bae1d68",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "30991ab17bb13d96",
+        "n": 3,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "35f21160e6509828",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "39d5bf1e166f5acc",
+        "n": 5,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "3dbdb2b302d10120",
+        "n": 3,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "40dad974bd86b8b1",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "46a124dd93d26976",
+        "n": 5,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "50c1200cc64db99d",
+        "n": 5,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "513c03d92aef49c7",
+        "n": 2,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "53ac15e90dcce4e1",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "71b41f9fbc6e4d44",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T10:003",
+        "n": 11,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "hass:T10:007",
+        "n": 11,
+        "particiones": [
+          "test",
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T10:014",
+        "n": 6,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T10:021",
+        "n": 2,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "hass:T10:033",
+        "n": 3,
+        "particiones": [
+          "test",
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T10:048",
+        "n": 7,
+        "particiones": [
+          "test",
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T10:054",
+        "n": 2,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "hass:T10:061",
+        "n": 3,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "hass:T10:072",
+        "n": 3,
+        "particiones": [
+          "test",
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T10:129",
+        "n": 3,
+        "particiones": [
+          "test",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T10:130",
+        "n": 5,
+        "particiones": [
+          "test",
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T10:131",
+        "n": 7,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T10:136",
+        "n": 3,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T10:145",
+        "n": 12,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "hass:T10:148",
+        "n": 3,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T10:165",
+        "n": 8,
+        "particiones": [
+          "test",
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T10:213",
+        "n": 2,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "hass:T10:219",
+        "n": 2,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T10:274",
+        "n": 8,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T10:284",
+        "n": 6,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "hass:T10:306",
+        "n": 2,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T10:330",
+        "n": 2,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "hass:T10:331",
+        "n": 2,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "hass:T10:337",
+        "n": 2,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "hass:T10:350",
+        "n": 4,
+        "particiones": [
+          "test",
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T10:445",
+        "n": 2,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T10:451",
+        "n": 6,
+        "particiones": [
+          "test",
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T20:001",
+        "n": 5,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T20:005",
+        "n": 3,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T20:006",
+        "n": 2,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T20:010",
+        "n": 4,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T20:043",
+        "n": 2,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "hass:T20:050",
+        "n": 2,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T20:174",
+        "n": 2,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "hass:T20:183",
+        "n": 2,
+        "particiones": [
+          "test",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T20:259",
+        "n": 5,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T20:277",
+        "n": 2,
+        "particiones": [
+          "test",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T20:438",
+        "n": 2,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:T20:469",
+        "n": 4,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:Tam:009",
+        "n": 5,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:Tam:017",
+        "n": 2,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      },
+      {
+        "grupo": "hass:Tam:053",
+        "n": 2,
+        "particiones": [
+          "train",
+          "val"
+        ]
+      },
+      {
+        "grupo": "hass:Tam:441",
+        "n": 4,
+        "particiones": [
+          "test",
+          "train"
+        ]
+      }
+    ],
+    "grupos": 88,
+    "imagenes": 383,
+    "imagenes_test": 76
+  },
+  "huella_manifiesto": "6691b96769fc3946e3cb650978095be07c3a093ca0e21ce80c27ec6e9c03722f",
+  "ilegibles": [],
+  "raiz_imagenes": "G:/Otros ordenadores/Mi portátil/Modelo/Evidencia_Tesis_Aguacate/05_datos/Dataset_split_experimental_v4_20261104_230751",
+  "ruta_manifiesto": "G:/Otros ordenadores/Mi portátil/Modelo/Evidencia_Tesis_Aguacate/05_datos/Dataset_split_experimental_v4_20261104_230751/reportes/manifiesto_split.csv",
+  "ruta_manifiesto_normalizado": "G:/Mi unidad/AvocadoIA/modelo\\manifiestos\\6691b967.csv",
+  "sha_cruzados": [],
+  "total": 1426
+}

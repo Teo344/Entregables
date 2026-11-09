@@ -44,3 +44,8 @@ __pycache__/
 metricas/.sesion-activa.json
 metricas/.ultima-actividad
 metricas/salidas/
+
+# Modelo (spec 003, research M18): binarios pesados viven en Drive, nunca en el repo
+datos/modelo/**/*.keras
+datos/modelo/**/*.tflite
+datos/modelo/**/*.npz

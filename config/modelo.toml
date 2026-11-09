@@ -1,0 +1,116 @@
+# Configuración del modelo clasificador (spec 003, data-model.md §4).
+# Regla de igualdad: dentro de una comparación solo pueden variar `arquitectura` y `semilla`
+# (huella_config). Cambiar cualquier otro valor invalida la comparación en curso.
+
+[datos]
+# Mapeo de columnas del manifiesto de entrada → manifiesto normalizado (research M2). No mapear
+# `procedencia`: en el split v4 contiene nombres de reportes CSV, no fuentes.
+[datos.columnas]
+ruta = "ruta_destino"
+clase = "clase_original"
+particion = "conjunto"
+sha256 = "sha256"
+estado_etiqueta = "estado_etiqueta"
+grupo = "grupo_duplicacion_escena"
+ruta_origen = "ruta_origen"
+
+# Equivalencias de clase (research M3). Un nombre fuera de esta tabla aborta.
+[datos.equivalencias]
+AGUACATESANOS = "sano"
+sano = "sano"
+ANTRACNOSIS = "antracnosis"
+antracnosis = "antracnosis"
+PEDUNCULO = "pedunculo"
+pedunculo = "pedunculo"
+
+[filtros]
+# Licencias (FR-026, research M19): sin opción para desactivarlo. Fuente primero por SHA-256 en el
+# manifiesto de 002 y, si no está, por las reglas de nombre de config/fuentes.csv.
+dataset_002 = "config/dataset.toml"
+fuentes_002 = "config/fuentes.csv"
+manifiesto_002 = "datos/manifiesto.csv"
+# Calidad (FR-027, research M19.1): avocare tiene licencia CC BY 4.0 pero su versión 4 de Roboflow
+# genera 3 variantes aumentadas por original (riesgo de fuga entre particiones).
+fuentes_excluidas = ["avocare_sano", "avocare_antracnosis"]
+motivo_exclusion = "calidad:copias_aumentadas_roboflow_v4"
+
+[entrada]
+tamano = 224
+metodo = "LANCZOS-estirar"
+
+[modelo]
+arquitecturas = ["mobilenetv3", "efficientnetb0"]
+dropout = 0.3
+
+[fase1]
+tasa = 1e-3
+epocas = 15
+
+[fase2]
+tasa = 1e-5
+epocas = 30
+fraccion = 0.30
+
+[parada]
+paciencia = 5
+paciencia_plateau = 2
+factor = 0.5
+min_lr = 1e-7
+
+[aumento]
+# research M8: valores de config/dataset.toml (002) más contraste.
+rotacion_grados = 45
+traslacion = 0.2
+zoom = 0.2
+volteo_horizontal = true
+volteo_vertical = true
+brillo = 0.2
+contraste = 0.2
+
+[entrenamiento]
+lote = 32
+semillas = [42, 43, 44]
+deterministico = true
+
+[evaluacion]
+bootstrap = 1000
+semilla = 42
+min_por_fuente = 10
+
+[seleccion]
+margen = 0.02
+
+[calibracion]
+intervalos = 15
+umbral = 0.60
+exactitud_objetivo = 0.95
+
+[explicacion]
+n = 10
+umbral_atajo = 0.20
+
+[exportacion]
+variantes = ["fp32", "fp16", "int8-dinamico"]
+tamano_max_mb = 10
+perdida_max = 0.01
+
+[metas]
+macro_f1 = 0.85
+recall_antracnosis = 0.85
+
+# Rutas por entorno (research M17): "colab" si existe /content/drive; si no, "pc".
+[rutas]
+repo_datos = "datos/modelo"
+
+[rutas.pc]
+raiz_imagenes = "G:/Otros ordenadores/Mi portátil/Modelo/Evidencia_Tesis_Aguacate/05_datos/Dataset_split_experimental_v4_20261104_230751"
+manifiesto = "G:/Otros ordenadores/Mi portátil/Modelo/Evidencia_Tesis_Aguacate/05_datos/Dataset_split_experimental_v4_20261104_230751/reportes/manifiesto_split.csv"
+salida = "G:/Mi unidad/AvocadoIA/modelo"
+
+[rutas.colab]
+raiz_imagenes = "/content/drive/Othercomputers/Mi portátil/Modelo/Evidencia_Tesis_Aguacate/05_datos/Dataset_split_experimental_v4_20261104_230751"
+manifiesto = "/content/drive/Othercomputers/Mi portátil/Modelo/Evidencia_Tesis_Aguacate/05_datos/Dataset_split_experimental_v4_20261104_230751/reportes/manifiesto_split.csv"
+salida = "/content/drive/MyDrive/AvocadoIA/modelo"
+# En Colab el clon del repo se pierde al cerrar la sesión: los artefactos versionables van a Drive y en
+# la PC `importar` los copia a datos/modelo (research M17, M18).
+repo_datos = "/content/drive/MyDrive/AvocadoIA/modelo/datos_modelo"
