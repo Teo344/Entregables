@@ -14,8 +14,19 @@ Las especificaciones 001 y 002 construyeron y depuraron el conjunto de datos. El
 entrada de esta fase el **split experimental v4** preparado por el compañero (2 211 imágenes: sano 1 000,
 antracnosis 1 000, síntomas compatibles con anillado del pedúnculo 211; 70/15/15), con su manifiesto
 `manifiesto_split.csv` e informes de verificación. Ese split tiene tres observaciones abiertas que el compañero
-debe resolver antes de reportar métricas finales en la tesis (ver Supuestos): licencia de las imágenes `sano-*`,
-posible presencia de copias aumentadas (`avocare`) y frutos con fotos en más de una partición.
+debe resolver antes de reportar métricas finales en la tesis (ver Supuestos): posible presencia de copias
+aumentadas (`avocare`) y frutos con fotos en más de una partición.
+
+**Licencias (principio II, no negociable)**: el split v4 incluye imágenes de fuentes sin licencia académica
+confirmada según `config/fuentes.csv` (especificación 002): 412 de `sano_web` (`sano-*`, descargas de internet,
+`uso_academico = no`) y 373 de `avocare` (licencia "no verificada", `uso_academico = pendiente`). Esas imágenes
+**nunca** entran al entrenamiento, ni siquiera en modo experimental. Con el filtro, el v4 queda en 1 426 imágenes
+(sano 392, antracnosis 823, pedúnculo 211; train 998 / val 220 / test 208).
+
+**Actualización 2026-11-09**: la licencia de `avocare` se verificó (CC BY 4.0, `uso_academico = si`), pero su
+versión 4 en Roboflow genera 3 variantes aumentadas por imagen original (2 488 desde 1 134). Por riesgo de fuga
+entre particiones se excluye **por calidad** (`[datos].fuentes_excluidas` en `config/modelo.toml`, FR-027). El
+conjunto de entrenamiento sigue en 1 426 imágenes.
 
 Esta funcionalidad cubre el objetivo OE3: obtener un clasificador que funcione sin conexión en el teléfono, con
 confianza calibrada y explicación visual, y documentar con evidencia reproducible por qué se eligió la
@@ -168,6 +179,8 @@ un mapa equivalente al calculado en el entorno de entrenamiento.
 
 - Una imagen del manifiesto no existe o no abre en la raíz configurada: el entrenamiento no empieza y lista las
   faltantes.
+- Una imagen pertenece a una fuente sin licencia académica confirmada (`no` o `pendiente`) o no se puede asignar
+  a ninguna fuente: se excluye y se registra con su motivo; nunca se entrena con ella (FR-026).
 - El manifiesto trae una clase con nombre distinto (`AGUACATESANOS`, `ANTRACNOSIS`, `PEDUNCULO`): se traduce a las
   tres clases oficiales mediante una tabla de equivalencias explícita; un nombre desconocido aborta la ejecución.
 - La sesión del entorno de entrenamiento se interrumpe a mitad de una corrida: la corrida se puede reanudar desde
@@ -195,6 +208,14 @@ un mapa equivalente al calculado en el entorno de entrenamiento.
 - **FR-003**: El sistema DEBE verificar, antes de entrenar, que todas las imágenes del manifiesto existen y son
   legibles, y que ningún SHA-256 aparece en más de una partición.
 - **FR-004**: El sistema DEBE calcular y registrar la huella SHA-256 del manifiesto usado en cada experimento.
+- **FR-026**: El sistema DEBE excluir, antes de cualquier otro paso, toda imagen cuya fuente no tenga
+  `uso_academico = si` en `config/fuentes.csv`. La fuente se determina primero por SHA-256 en `datos/manifiesto.csv`
+  (especificación 002) y, si el contenido no está registrado, con las reglas de nombre sobre la ruta original; una
+  imagen sin fuente determinable también se excluye. Cada exclusión queda registrada con su fuente, licencia y
+  motivo, y los conteos excluidos se informan por partición y clase.
+- **FR-027**: El sistema DEBE excluir además las fuentes listadas en la configuración como excluidas por calidad
+  (hoy `avocare_sano` y `avocare_antracnosis`, copias aumentadas), registrando el motivo de calidad por separado
+  del de licencia.
 - **FR-005**: El conjunto de prueba NO DEBE intervenir en el entrenamiento, la selección de hiperparámetros, la
   selección de arquitectura ni la calibración; solo se usa para el reporte final.
 
@@ -296,11 +317,16 @@ un mapa equivalente al calculado en el entorno de entrenamiento.
 
 - **Dataset**: se usa el split experimental v4 del compañero
   (`Evidencia_Tesis_Aguacate/05_datos/Dataset_split_experimental_v4_20261104_230751`, en el Google Drive del
-  equipo) tal como está para desarrollar y depurar el flujo. Antes de reportar métricas finales en la tesis, el
-  compañero DEBE resolver y documentar tres observaciones: (a) licencia de las 209 imágenes `sano-*` que la
-  especificación 002 excluyó por licencia; (b) 373 imágenes `avocare` que la especificación 002 excluyó como
-  posibles copias aumentadas; (c) 89 frutos con fotos en más de una partición (76 imágenes de prueba afectadas).
-  Gracias a FR-001, la versión corregida se usa sustituyendo el manifiesto.
+  equipo) para desarrollar y depurar el flujo, **después** del filtro de licencias de FR-026 (1 426 imágenes).
+  Antes de reportar métricas finales en la tesis, el compañero DEBE resolver y documentar: (a) retirar del split
+  las 412 imágenes `sano-*` sin licencia (209 registradas en 002 y 203 nuevas con el mismo origen; las 16 renumeradas `sano-0707`…`sano-0723` son fotos propias de Herrera y Marín y sí se conservan); (b) para reincorporar
+  `avocare` (licencia ya verificada), entregar solo las imágenes originales o agruparlas por original, porque la
+  versión 4 de Roboflow contiene 3 variantes aumentadas por foto; (c) 89 frutos con fotos en más de una partición (76 imágenes de prueba afectadas, a
+  recalcular tras el filtro). Gracias a FR-001, la versión corregida se usa sustituyendo el manifiesto.
+- **Licencia de avocare**: verificada por los autores en Roboflow Universe el 2026-11-09 (CC BY 4.0). Queda
+  excluida por calidad (FR-027) hasta que el compañero entregue solo los originales o los agrupe por original.
+- **Balance de clases**: tras el filtro, sano queda con 392 imágenes frente a 823 de antracnosis; se compensa con
+  pesos de clase (FR-008) y se vigila el recall de sano en los informes.
 - **Etiquetas**: la mayoría de las etiquetas del split v4 son provisionales (pendientes de validación del experto
   agrónomo). Las métricas sobre etiquetas provisionales se rotulan como "experimentales" en los informes.
 - **Entorno**: el entrenamiento se ejecuta en Google Colab con GPU, leyendo las imágenes desde Google Drive; los
