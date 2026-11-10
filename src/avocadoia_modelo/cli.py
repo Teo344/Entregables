@@ -40,8 +40,13 @@ def _parser():
     pv.add_argument("--corrida", required=True)
     px = sub.add_parser("explicar", parents=[comun], help="Mapas Grad-CAM++ de aciertos y errores + planilla")
     px.add_argument("--corrida", required=True)
+    px.add_argument("--forzar", action="store_true", help="regenerar aunque la planilla ya tenga valoraciones")
     pr = sub.add_parser("resumir-explicaciones", parents=[comun], help="Resume la planilla valorada")
     pr.add_argument("--corrida", required=True)
+    pc = sub.add_parser("calibrar", parents=[comun], help="Temperature Scaling con validación, ECE y umbral")
+    pc.add_argument("--corrida", required=True)
+    pd = sub.add_parser("diagrama", parents=[comun], help="Figura de la arquitectura de una corrida")
+    pd.add_argument("--corrida", required=True)
     ps = sub.add_parser("spike-explain", parents=[comun], help="Prueba la firma explain en TFLite (M14)")
     ps.add_argument("--corrida", help="modelo entrenado a usar; sin él, entrena 1 época solo para la prueba")
     return p
@@ -185,6 +190,14 @@ def _cmd_explicar(args):
     if error:
         print(f"Error: {error}", file=sys.stderr)
         return ERROR_DATOS
+    import os
+
+    destino = os.path.join(r["repo_datos"], "explicaciones", args.corrida)
+    valoradas = [f for f in explicacion.leer_planilla(destino) if f.get("valoracion")] if os.path.isdir(destino) else []
+    if valoradas and not args.forzar:
+        print(f"Error: la planilla de {args.corrida} ya tiene {len(valoradas)} valoraciones; regenerarla las borraría. "
+              "Use --forzar solo si quiere descartarlas.", file=sys.stderr)
+        return ERROR_USO
     info = explicacion.generar(cfg, args.corrida, cache, r["repo_datos"], r["salida"], ver)
     cal = "calibrada" if info["confianza_calibrada"] else "SIN calibrar (T = 1; ejecute `calibrar` antes)"
     print(f"{info['n_mapas']} mapas en {r['repo_datos']}/explicaciones/{args.corrida}/ · confianza {cal}")
@@ -224,6 +237,87 @@ def _cmd_spike_explain(args):
     return EXITO
 
 
+def _cmd_calibrar(args):
+    import os
+
+    import numpy as np
+
+    from avocadoia_datos.es_csv import escribir_csv, escribir_json
+
+    from avocadoia_modelo import calibracion, figuras
+
+    cfg, r = _rutas(args)
+    ruta = os.path.join(r["salida"], "experimentos", args.corrida, "logits.npz")
+    if not os.path.exists(ruta):
+        print(f"Error: no existen los logits {ruta}: ejecute `evaluar --corrida {args.corrida}`", file=sys.stderr)
+        return ERROR_DATOS
+    d = np.load(ruta, allow_pickle=False)
+    c = cfg["calibracion"]
+    res = calibracion.calibrar(d["logits_val"], d["y_val"], d["logits_test"], d["y_test"], c["intervalos"],
+                               c["umbral"], c["exactitud_objetivo"])
+    curva = res.pop("_curva_val")
+    res["corrida"] = args.corrida
+    destino = os.path.join(r["repo_datos"], "calibracion", args.corrida)
+    ruta_json = os.path.join(destino, "calibracion.json")
+    if os.path.exists(ruta_json):  # la justificación del umbral es manual (T042): no perderla al recalcular
+        from avocadoia_datos.es_csv import leer_json
+
+        previa = leer_json(ruta_json).get("justificacion_umbral")
+        if previa:
+            res["justificacion_umbral"] = previa
+    escribir_json(ruta_json, res)
+    escribir_csv(os.path.join(destino, "cobertura_exactitud.csv"), ("umbral", "cobertura", "exactitud", "aceptadas"),
+                 curva)
+    t = res["temperatura"]
+    for momento, temp in (("antes", 1.0), ("despues", t)):
+        bins = {p: (calibracion.fiabilidad(calibracion.softmax(d[f"logits_{p}"], temp), d[f"y_{p}"], c["intervalos"]),
+                    res[f"ece_{p}_{momento}"]) for p in ("val", "test")}
+        figuras.fiabilidad(bins, os.path.join(destino, f"fiabilidad_{momento}.png"),
+                           f"Fiabilidad {'antes' if momento == 'antes' else 'después'} de calibrar (T = {temp:.3f})")
+    figuras.cobertura_exactitud(curva, os.path.join(destino, "cobertura_exactitud.png"), c["umbral"],
+                                res["umbral_exactitud_95"], "Cobertura frente a exactitud (validación calibrada)")
+    print(f"Corrida {args.corrida}: temperatura T = {t:.3f}")
+    for p in ("val", "test"):
+        print(f"  {p}: ECE {res[f'ece_{p}_antes']:.4f} → {res[f'ece_{p}_despues']:.4f} · confianza media "
+              f"{res[f'confianza_media_{p}_antes']:.3f} → {res[f'confianza_media_{p}_despues']:.3f}")
+    print(f"  NLL val {res['nll_antes']:.4f} → {res['nll_despues']:.4f}")
+    u95 = res["umbral_exactitud_95"]
+    print(f"  Umbral {c['umbral']:.2f}: no concluyentes en test {res['no_concluyentes_test']:.1%} · "
+          f"umbral con exactitud ≥ 95 % en val: {u95 if u95 is not None else 'ninguno'}")
+    return EXITO
+
+
+def _cmd_diagrama(args):
+    import os
+
+    import keras
+
+    from avocadoia_datos.es_csv import leer_json
+
+    from avocadoia_modelo import ETIQUETAS_VISIBLES, arquitecturas, figuras, registro
+
+    cfg, r = _rutas(args)
+    reg = registro.leer_registro(r["repo_datos"], args.corrida)
+    ruta_modelo = os.path.join(r["salida"], "experimentos", args.corrida, "mejor.keras")
+    modelo = keras.models.load_model(ruta_modelo)
+    base = arquitecturas.capas_del_modelo_base(modelo)
+    cabeza = sum(modelo.get_layer(n).count_params() for n in ("gap", "dropout", "logits"))
+    ruta_cal = os.path.join(r["repo_datos"], "calibracion", args.corrida, "calibracion.json")
+    nombres = {"mobilenetv3": ("MobileNetV3-Large", "hard-swish / ReLU"), "efficientnetb0": ("EfficientNet-B0", "swish (SiLU)")}
+    nombre, activacion = nombres[reg["arquitectura"]]
+    info = {"nombre_base": nombre, "activacion": activacion, "entrada": cfg["entrada"]["tamano"],
+            "capas_base": len(base), "param_base": modelo.count_params() - cabeza, "param_cabeza": cabeza,
+            "param_total": modelo.count_params(), "entrenables_f2": reg.get("capas_entrenables_fase2", "?"),
+            "mapa": tuple(modelo.get_layer(arquitecturas.nombre_capa_mapa(modelo)).output.shape[1:]),
+            "dropout": cfg["modelo"]["dropout"], "umbral": cfg["calibracion"]["umbral"],
+            "temperatura": leer_json(ruta_cal)["temperatura"] if os.path.exists(ruta_cal) else 1.0,
+            "clases": ETIQUETAS_VISIBLES, "tamano_mb": os.path.getsize(ruta_modelo) / 2**20, "corrida": args.corrida}
+    destino = os.path.join(r["repo_datos"], "figuras", f"arquitectura_{reg['arquitectura']}.png")
+    figuras.arquitectura(info, destino)
+    print(f"Figura: {destino}")
+    return EXITO
+
+
 def _cmd_importar(args):
     from avocadoia_modelo import registro
 
@@ -238,7 +332,7 @@ def _cmd_importar(args):
 
 COMANDOS = {"verificar": _cmd_verificar, "importar": _cmd_importar, "preparar": _cmd_preparar,
             "entrenar": _cmd_entrenar, "evaluar": _cmd_evaluar, "explicar": _cmd_explicar,
-            "resumir-explicaciones": _cmd_resumir_explicaciones, "spike-explain": _cmd_spike_explain}
+            "resumir-explicaciones": _cmd_resumir_explicaciones, "calibrar": _cmd_calibrar, "diagrama": _cmd_diagrama, "spike-explain": _cmd_spike_explain}
 
 
 def main(argv=None):
