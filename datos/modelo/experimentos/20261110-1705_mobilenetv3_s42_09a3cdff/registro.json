@@ -1,0 +1,196 @@
+{
+  "arquitectura": "mobilenetv3",
+  "capa_mapa": "activation_19",
+  "capas_base": 186,
+  "capas_entrenables_fase2": 45,
+  "configuracion": {
+    "aumento": {
+      "brillo": 0.2,
+      "contraste": 0.2,
+      "rotacion_grados": 45,
+      "traslacion": 0.2,
+      "volteo_horizontal": true,
+      "volteo_vertical": true,
+      "zoom": 0.2
+    },
+    "calibracion": {
+      "exactitud_objetivo": 0.95,
+      "intervalos": 15,
+      "umbral": 0.6
+    },
+    "dataset_002": {
+      "huella_particion": "096faf72d19fd58e0714c998fa4afefa97a6b97df4172fbdea6f3f73365a4bef",
+      "manifiesto": "datos/modelo/dataset_002/manifiesto_002.csv",
+      "particion": "datos/particion.csv"
+    },
+    "datos": {
+      "columnas": {
+        "clase": "clase_original",
+        "estado_etiqueta": "estado_etiqueta",
+        "grupo": "grupo_duplicacion_escena",
+        "particion": "conjunto",
+        "ruta": "ruta_destino",
+        "ruta_origen": "ruta_origen",
+        "sha256": "sha256"
+      },
+      "equivalencias": {
+        "AGUACATESANOS": "sano",
+        "ANTRACNOSIS": "antracnosis",
+        "PEDUNCULO": "pedunculo",
+        "antracnosis": "antracnosis",
+        "pedunculo": "pedunculo",
+        "sano": "sano"
+      }
+    },
+    "entrada": {
+      "metodo": "LANCZOS-estirar",
+      "tamano": 224
+    },
+    "entrenamiento": {
+      "deterministico": true,
+      "lote": 32,
+      "semillas": [
+        42,
+        43,
+        44
+      ]
+    },
+    "evaluacion": {
+      "bootstrap": 1000,
+      "min_por_fuente": 10,
+      "semilla": 42
+    },
+    "explicacion": {
+      "n": 10,
+      "umbral_atajo": 0.2
+    },
+    "exportacion": {
+      "perdida_max": 0.01,
+      "tamano_max_mb": 10,
+      "variantes": [
+        "fp32",
+        "fp16",
+        "int8-dinamico"
+      ]
+    },
+    "fase1": {
+      "epocas": 15,
+      "tasa": 0.001
+    },
+    "fase2": {
+      "epocas": 30,
+      "fraccion": 0.3,
+      "tasa": 1e-05
+    },
+    "filtros": {
+      "caracteristicas_002": "datos/eda/tablas/caracteristicas.csv",
+      "dataset_002": "config/dataset.toml",
+      "fuentes_002": "config/fuentes.csv",
+      "fuentes_excluidas": [
+        "avocare_sano",
+        "avocare_antracnosis"
+      ],
+      "manifiesto_002": "datos/manifiesto.csv",
+      "motivo_exclusion": "calidad:copias_aumentadas_roboflow_v4"
+    },
+    "metas": {
+      "macro_f1": 0.85,
+      "recall_antracnosis": 0.85
+    },
+    "modelo": {
+      "arquitecturas": [
+        "mobilenetv3",
+        "efficientnetb0"
+      ],
+      "dropout": 0.3
+    },
+    "parada": {
+      "factor": 0.5,
+      "min_lr": 1e-07,
+      "paciencia": 5,
+      "paciencia_plateau": 2
+    },
+    "seleccion": {
+      "margen": 0.02
+    }
+  },
+  "distribucion_train": [
+    677,
+    670,
+    184
+  ],
+  "duracion_min": 20.64,
+  "epocas_fase1": 15,
+  "epocas_fase2": 19,
+  "estado": "completa",
+  "experimental": true,
+  "fase1_completa": true,
+  "fecha_completa": "2026-11-10T17:26:31",
+  "fecha_en_curso": "2026-11-10T17:05:41",
+  "huella_cache": "5cb0c9e8612025384a6513d97c52182c145d91e7f93f8511142f1fca76263ac2",
+  "huella_config": "bde6ad255e10e8df65594a030945b4ada11e1fb0676c265d8c0c654e91c8c2d1",
+  "huella_manifiesto": "09a3cdff1a93f309fa5b46820ecb49df64930706e8b4b064f8efe5c8e82f571b",
+  "id": "20261110-1705_mobilenetv3_s42_09a3cdff",
+  "n_train": 1531,
+  "n_val": 330,
+  "pesos_clase": {
+    "0": 0.7538158542589857,
+    "1": 0.7616915422885572,
+    "2": 2.773550724637681
+  },
+  "semilla": 42,
+  "tamano_keras_mb": 30.969,
+  "verificacion": {
+    "conteos": {
+      "test": {
+        "antracnosis": 143,
+        "pedunculo": 39,
+        "sano": 145
+      },
+      "train": {
+        "antracnosis": 670,
+        "pedunculo": 184,
+        "sano": 677
+      },
+      "val": {
+        "antracnosis": 145,
+        "pedunculo": 40,
+        "sano": 145
+      }
+    },
+    "estado": "ok_con_avisos",
+    "etiquetas_provisionales": {
+      "test": 327,
+      "train": 1531,
+      "val": 330
+    },
+    "excluidas": {
+      "por_fuente": {},
+      "por_motivo": {},
+      "por_particion_clase": {
+        "test": {},
+        "train": {},
+        "val": {}
+      },
+      "total": 0
+    },
+    "fuga_por_fruto": {
+      "detalle": [],
+      "grupos": 0,
+      "imagenes": 0,
+      "imagenes_test": 0
+    }
+  },
+  "versiones": {
+    "cuda": "12.5.1",
+    "cudnn": "9",
+    "gpu": [
+      "/physical_device:GPU:0"
+    ],
+    "keras": "3.15.1",
+    "numpy": "2.5.4",
+    "plataforma": "Linux-6.6.159+-x86_64-with-glibc2.39",
+    "python": "3.13.16",
+    "tensorflow": "2.20.0"
+  }
+}

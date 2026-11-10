@@ -1,0 +1,28 @@
+{
+  "advertencia": "Prueba de campo independiente: no se usa para entrenar, elegir ni calibrar (FR-028).",
+  "confianza_calibrada": false,
+  "confianza_media": 0.8051997840513556,
+  "corrida": "20261110-1726_mobilenetv3_s42_09a3cdff",
+  "fecha": "2026-11-10",
+  "n": 40,
+  "no_concluyentes": 5,
+  "por_clase": {
+    "pedunculo": {
+      "confundida_con": {
+        "antracnosis": 0,
+        "sano": 12
+      },
+      "n": 40,
+      "sensibilidad": 0.7,
+      "sensibilidad_concluyentes": 0.7428571428571429
+    }
+  },
+  "predicciones": {
+    "antracnosis": 0,
+    "pedunculo": 28,
+    "sano": 12
+  },
+  "temperatura": 1.0,
+  "umbral": 0.6,
+  "validacion_experta": "pendiente"
+}

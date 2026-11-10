@@ -1,3 +1,5 @@
 id,fecha,arquitectura,semilla,huella_config,huella_manifiesto,estado,val_macro_f1,test_macro_f1,test_recall_antracnosis,tamano_keras_mb,duracion_min,experimental
 20261109-2246_mobilenetv3_s42_6691b967,20261109-2246,mobilenetv3,42,8c6218bc8847,6691b96769fc,completa,0.992,1.0,1.0,30.969,13.17,si
 20261109-2259_mobilenetv3_s42_6691b967,20261109-2259,mobilenetv3,42,8c6218bc8847,6691b96769fc,completa,0.992,1.0,1.0,30.969,12.71,si
+20261110-1705_mobilenetv3_s42_09a3cdff,20261110-1705,mobilenetv3,42,bde6ad255e10,09a3cdff1a93,completa,0.9779,0.9462,0.979,30.969,20.64,si
+20261110-1726_mobilenetv3_s42_09a3cdff,20261110-1726,mobilenetv3,42,bde6ad255e10,09a3cdff1a93,completa,0.9779,0.9462,0.979,30.969,20.28,si
