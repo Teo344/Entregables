@@ -26,6 +26,8 @@ Modelo/PORCLASIFICAR/Drive/*.zip
 
 # Salida del pipeline (se regenera con `python -m avocadoia_datos todo`).
 /Modelo/PROCESADO/
+# Fotos propias de campo (Sigchos): nunca se versionan (constitución, restricciones de datos)
+/Modelo/CAMPO_SIGCHOS/
 
 # Entorno de Python
 .venv/

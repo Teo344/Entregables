@@ -22,6 +22,8 @@ eda = [
     "scikit-learn==1.9.1",
     "matplotlib==3.11.2",
     "python-docx==1.2.0",
+    # Lectura de fotos HEIC de iPhone para convertirlas a JPG (fotos de campo, scripts/convertir_heic.py).
+    "pillow-heif==1.8.1",
 ]
 # Modelo clasificador (spec 003, research M1/M17); mismas versiones que [eda]. Requiere Python 3.12.
 modelo = [

@@ -1,0 +1,65 @@
+{
+  "cambios": {
+    "agregada:completar_articulo:mdpi_pedunculo": 62,
+    "agregada:completar_articulo:mdpi_pedunculo_sano": 340,
+    "excluida:calidad:copias_aumentadas_roboflow_v4": 373,
+    "excluida:licencia:sano_web:no": 412,
+    "movida:fruto_en_varias_particiones": 202,
+    "movida:particion_del_articulo": 54,
+    "movida:rafaga_herrera_marin": 2
+  },
+  "comprobaciones": {
+    "avocare": 0,
+    "fuentes_sin_licencia": [],
+    "grupos_en_varias_particiones": 0,
+    "sha_en_varias_particiones": 0
+  },
+  "entrada_v4": {
+    "test": {
+      "antracnosis": 150,
+      "pedunculo": 31,
+      "sano": 150
+    },
+    "train": {
+      "antracnosis": 700,
+      "pedunculo": 148,
+      "sano": 700
+    },
+    "val": {
+      "antracnosis": 150,
+      "pedunculo": 32,
+      "sano": 150
+    }
+  },
+  "estado": "propuesta",
+  "fecha": "2026-11-10",
+  "huella_v4": "6691b96769fc3946e3cb650978095be07c3a093ca0e21ce80c27ec6e9c03722f",
+  "por_fuente": {
+    "hass": 294,
+    "herrera_marin": 16,
+    "kaggle_antracnosis": 385,
+    "mdpi_pedunculo": 273,
+    "mdpi_pedunculo_sano": 340,
+    "rgb_antracnosis": 438,
+    "rgb_sano": 82
+  },
+  "total_v4": 2211,
+  "total_v5": 1828,
+  "v5": {
+    "test": {
+      "antracnosis": 124,
+      "pedunculo": 39,
+      "sano": 109
+    },
+    "train": {
+      "antracnosis": 577,
+      "pedunculo": 203,
+      "sano": 513
+    },
+    "val": {
+      "antracnosis": 122,
+      "pedunculo": 33,
+      "sano": 108
+    }
+  }
+}

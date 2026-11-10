@@ -45,6 +45,11 @@ def _parser():
     pr.add_argument("--corrida", required=True)
     pc = sub.add_parser("calibrar", parents=[comun], help="Temperature Scaling con validación, ECE y umbral")
     pc.add_argument("--corrida", required=True)
+    sub.add_parser("generar-manifiesto-002", parents=[comun], help="Manifiesto del dataset 002 (M20)")
+    sub.add_parser("generar-v5", parents=[comun], help="Split v5 propuesto a partir del v4 (punto 1)")
+    sub.add_parser("campo-etl", parents=[comun], help="ETL + EDA de las fotos de campo (CAMPO_SIGCHOS)")
+    pk = sub.add_parser("evaluar-campo", parents=[comun], help="Evalúa una corrida con la prueba de campo")
+    pk.add_argument("--corrida", required=True)
     pd = sub.add_parser("diagrama", parents=[comun], help="Figura de la arquitectura de una corrida")
     pd.add_argument("--corrida", required=True)
     ps = sub.add_parser("spike-explain", parents=[comun], help="Prueba la firma explain en TFLite (M14)")
@@ -318,6 +323,93 @@ def _cmd_diagrama(args):
     return EXITO
 
 
+def _cmd_campo_etl(args):
+    import os
+
+    from avocadoia_datos.es_csv import escribir_csv, leer_csv
+
+    from avocadoia_modelo import campo
+    from avocadoia_modelo import manifiesto as mm
+
+    cfg, r = _rutas(args)
+    cfg002, por_sha = mm.contexto_002(cfg)
+    filas = campo.inventariar(r["raiz_modelo"], cfg002, por_sha, cfg002.preprocesamiento)
+    destino = os.path.join(r["repo_datos"], "campo")
+    res = campo.escribir(filas, destino)
+    referencia = ("mdpi_pedunculo", "mdpi_pedunculo_sano", "hass", "rgb_sano", "rgb_antracnosis", "kaggle_antracnosis")
+    tabla, grupos = campo.tabla_comparativa(filas, leer_csv(cfg["filtros"]["caracteristicas_002"]),
+                                            leer_csv(cfg["filtros"]["manifiesto_002"]), referencia)
+    escribir_csv(os.path.join(destino, "comparacion_campo.csv"), list(tabla[0]), tabla)
+    campo.figuras_eda(grupos, destino, r["raiz_modelo"], filas)
+    print(f"Fotos de campo: {res['total']} · válidas (test_campo): {res['test_campo']} · por clase {res['por_clase']}")
+    print(f"  Rechazadas: {res['rechazadas'] or 'ninguna'} · grupos de fotos casi iguales: "
+          f"{res['grupos_similitud']} ({res['grupos_con_varias_fotos']} con varias fotos)")
+    print("  Comparación (mediana) frente al entrenamiento:")
+    for t in tabla:
+        print(f"    {t['grupo']:<26} n={t['n']:<4} brillo {t['brillo_mediana']:<7} nitidez {t['nitidez_mediana']:<8} "
+              f"saturación {t['saturacion_mediana']:<6} fondo uniforme {t['fondo_uniforme_pct']} %")
+    print(f"  Archivos en {destino}/ · validación del agrónomo: pendiente")
+    return EXITO
+
+
+def _cmd_evaluar_campo(args):
+    from avocadoia_modelo import campo
+
+    cfg, r = _rutas(args)
+    res = campo.evaluar(cfg, args.corrida, r["repo_datos"], r["salida"], r["raiz_modelo"])
+    cal = "calibrada" if res["confianza_calibrada"] else "sin calibrar"
+    print(f"Prueba de campo · corrida {args.corrida} · {res['n']} fotos · confianza {cal} (T = {res['temperatura']})")
+    print(f"  Predicciones: {res['predicciones']} · no concluyentes (< {res['umbral']}): {res['no_concluyentes']}")
+    for c, v in res["por_clase"].items():
+        print(f"  {c}: sensibilidad {v['sensibilidad']:.1%} ({v['n']} fotos) · confundida con {v['confundida_con']}")
+    print(f"  Confianza media: {res['confianza_media']:.3f}")
+    return EXITO
+
+
+def _cmd_generar_v5(args):
+    import os
+
+    from avocadoia_modelo import manifiesto as mm
+    from avocadoia_modelo import split_v5
+
+    cfg, r = _rutas(args)
+    cfg002, por_sha = mm.contexto_002(cfg)
+    from avocadoia_datos.es_csv import leer_csv
+
+    prefijo = os.path.relpath(r["raiz_imagenes"], r["raiz_modelo"]).replace("\\", "/")
+    salida, cambios, entrada = split_v5.construir(cfg, mm.leer_entrada(r["manifiesto"]), prefijo, cfg002, por_sha,
+                                                  leer_csv(cfg["filtros"]["manifiesto_002"]))
+    destino = os.path.join("datos", "modelo", "v5")
+    res = split_v5.escribir(destino, salida, cambios, entrada, mm.huella_manifiesto(r["manifiesto"]))
+    print(f"Split v5 (propuesta): {res['total_v4']} del v4 → {res['total_v5']} imágenes")
+    for p in PARTICIONES:
+        print(f"  {p}: v4 {res['entrada_v4'][p]} → v5 {res['v5'][p]}")
+    for k, n in res["cambios"].items():
+        print(f"  {k}: {n}")
+    print(f"  Comprobaciones: {res['comprobaciones']}")
+    print(f"  Archivos en {destino}/ (raíz de imágenes: {r['raiz_modelo']})")
+    return EXITO
+
+
+def _cmd_generar_manifiesto_002(args):
+    import os
+
+    from avocadoia_modelo import dataset_002
+
+    cfg, r = _rutas(args)
+    d = cfg["dataset_002"]
+    filas, res = dataset_002.generar(d["particion"], cfg["filtros"]["manifiesto_002"], d["huella_particion"])
+    proc = dataset_002.comprobar_procesado(os.path.join(r["raiz_modelo"], "PROCESADO"), cfg["filtros"]["dataset_002"],
+                                           cfg["filtros"]["fuentes_002"])
+    res.update(procesado=proc)
+    ruta = dataset_002.escribir(filas, res, os.path.dirname(d["manifiesto"]))
+    print(f"Dataset 002: {res['total']} imágenes · huella de la partición {res['huella_particion'][:8]} (coincide)")
+    print(f"  PROCESADO generado con la configuración vigente: {'sí' if proc['coincide'] else 'NO'} "
+          f"({(proc['huella_procesado'] or 'sin .configuracion')[:8]})")
+    print(f"  Manifiesto: {ruta}")
+    return EXITO if proc["coincide"] else ERROR_DATOS
+
+
 def _cmd_importar(args):
     from avocadoia_modelo import registro
 
@@ -332,7 +424,7 @@ def _cmd_importar(args):
 
 COMANDOS = {"verificar": _cmd_verificar, "importar": _cmd_importar, "preparar": _cmd_preparar,
             "entrenar": _cmd_entrenar, "evaluar": _cmd_evaluar, "explicar": _cmd_explicar,
-            "resumir-explicaciones": _cmd_resumir_explicaciones, "calibrar": _cmd_calibrar, "diagrama": _cmd_diagrama, "spike-explain": _cmd_spike_explain}
+            "resumir-explicaciones": _cmd_resumir_explicaciones, "calibrar": _cmd_calibrar, "diagrama": _cmd_diagrama, "campo-etl": _cmd_campo_etl, "generar-v5": _cmd_generar_v5, "generar-manifiesto-002": _cmd_generar_manifiesto_002, "evaluar-campo": _cmd_evaluar_campo, "spike-explain": _cmd_spike_explain}
 
 
 def main(argv=None):

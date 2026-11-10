@@ -278,3 +278,35 @@ Cada decisión se identifica como **M<n>** para citarla desde el plan, las tarea
 - **Para reincorporar avocare**: el compañero debe entregar solo los originales (una imagen por ejemplo de
   origen) o agruparlas por original para que no crucen particiones; entonces se quita de
   `fuentes_excluidas`.
+
+## M20. Dataset de entrada: partición de la especificación 002 (decisión del 2026-11-10)
+
+- **Decision**: el modelo se entrena y evalúa con `datos/particion.csv` de la especificación 002 (2 188 imágenes,
+  huella `096faf72d19f…`) y sus imágenes procesadas `Modelo/PROCESADO/<particion>/<clase>/<id_contenido>.jpg`
+  (224 × 224, LANCZOS, JPEG calidad 95). Un adaptador (`avocadoia_modelo.dataset_002`) genera
+  `datos/modelo/dataset_002/manifiesto_002.csv` con las columnas de M2 (`ruta_destino`, `clase_original`,
+  `conjunto`, `sha256` del original, `estado_etiqueta`, `grupo_duplicacion_escena`, `ruta_origen`); el SHA-256 es el
+  del original para que licencia (M19), duplicados y fuga se comprueben igual que antes. `preparar` no altera las
+  imágenes (ya están a 224 × 224). El v4 queda como experimento descartado.
+- **Comparación medida** (mismo criterio de fuente por SHA-256):
+
+  | Criterio | v4 | 002 |
+  | --- | --- | --- |
+  | Imágenes | 2 211 | 2 188 |
+  | Sin licencia académica | 412 | 0 |
+  | Ya descartadas por la revisión de 002 (avocare, Kaggle sin lesión visible, dudosas) | 568 | 0 |
+  | Frutos en varias particiones (imágenes de test afectadas) | 89 (76) | 0 (0) |
+  | Pedúnculos sanos del artículo (`mdpi_pedunculo_sano`) | 0 | 338 |
+  | Partición oficial del artículo | no | sí (578 imágenes) |
+  | Revisión manual de etiquetas | no | sí (393 decisiones) |
+  | Imágenes en común | 880 | 880 |
+
+- **Rationale**: la 002 cumple FR-026/FR-027 y el principio II sin filtros adicionales, no tiene fuga entre
+  particiones e incluye los pedúnculos sanos cuya ausencia explica el 0/40 de la prueba de campo con el v4.
+- **Limitaciones heredadas (requisitos de viabilidad)**: auditoría de etiquetas de 002 con 6 % de error (IC 95 %
+  2,8–12,5 %; criterio ≤ 2 %), sonda de fondo 0,95 (alerta de atajo), sondas de fuente 0,996–1,0, etiquetas sin
+  validación del agrónomo y 76 originales de 002 ausentes en el PC actual (sus versiones procesadas sí están; no
+  afecta al entrenamiento).
+- **Alternatives considered**: v4 tal cual (incumple licencias y tiene fuga); v4 filtrado (1 426, sin pedúnculos
+  sanos: 0/40 en campo); v5 propuesto (v4 corregido con las reglas de 002: 1 828 imágenes, sin la revisión manual de
+  002; se conserva solo como diagnóstico del v4, ver `datos/modelo/v5/informe_v5.md`).

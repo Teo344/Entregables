@@ -7,7 +7,13 @@
 ## Summary
 
 Entrenar, comparar, calibrar, explicar y exportar el clasificador de tres clases de AvocadoIA (OE3) sobre
-el **split experimental v4** del compañero, de forma reproducible y sustituible por su versión corregida.
+la **partición de la especificación 002** (decisión del 2026-11-10, research M20), de forma reproducible. El split
+experimental v4 del compañero se usó para desarrollar el flujo y quedó descartado (licencias, fuga, faltan los
+pedúnculos sanos; 0/40 en la prueba de campo).
+
+- **Dataset 002** (M20): `datos/particion.csv` (2 188 imágenes, huella `096faf72`) se convierte con un adaptador
+  en un manifiesto con el formato de M2 que apunta a `Modelo/PROCESADO/`; `verificar` comprueba existencia,
+  licencias, SHA y frutos cruzados antes de usarlo.
 
 - **Licencias**: antes que nada, se excluyen las imágenes de fuentes sin `uso_academico = si` en
   `config/fuentes.csv`, con las reglas de fuente de la 002 (M19). El v4 pasa de 2 211 a 1 426 imágenes
@@ -60,8 +66,9 @@ exportación TFLite y paridad Keras ↔ TFLite.
 entrenamiento, selección ni calibración (FR-005); funcionamiento sin conexión del modelo exportado
 (principio I); variación entre repeticiones ≤ 1 punto (SC-006).
 
-**Scale/Scope**: 1 426 imágenes tras el filtro de licencias (train 998 / val 220 / test 208; sano 392,
-antracnosis 823, pedúnculo 211), de 2 211 en el v4; 3 clases, 2 arquitecturas × 3 semillas = 6 corridas de
+**Scale/Scope**: dataset 002 con 2 188 imágenes (train 1 531 / val 330 / test 327; sano 967, antracnosis 958,
+pedúnculo 263) más 40 fotos de campo propias solo como prueba independiente (historial: 1 426 del v4 filtrado);
+3 clases, 2 arquitecturas × 3 semillas = 6 corridas de
 comparación + 1 spike.
 
 ## Constitution Check
@@ -162,6 +169,6 @@ de fuga. TensorFlow solo se importa en `datos_tf`, `arquitecturas`, `entrenamien
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 | --- | --- | --- |
-| Entrenar con el split v4 (ya filtrado por licencias) con frutos cruzados entre particiones y etiquetas sin validación experta (principio II, solo en su parte de calidad, y regla de validación previa). La parte de licencias **no** es excepción: se cumple con FR-026 | El equipo decidió avanzar con el modelo mientras el compañero corrige el split y no hay validador designado; el flujo se valida ahora y se repite con el manifiesto corregido | Esperar bloquea el cronograma de sprints; usar la partición de 002 contradice la decisión del equipo (2026-11-09). Mitigación: rótulo "experimental", avisos de `verificar` en cada registro y repetición obligatoria antes de reportar en la tesis |
+| Entrenar con el dataset 002, cuyas etiquetas no tienen validación del agrónomo y cuya auditoría dio 6 % de error (criterio ≤ 2 %) (principio II en su parte de calidad y regla de validación previa). Licencias y fuga sí se cumplen | Avanzar con el modelo mientras se resuelven la auditoría y la validación experta (T071) | Esperar bloquea el cronograma; el v4 incumple licencias y tiene fuga (M20). Mitigación: rótulo "experimental", prueba de campo independiente y repetición antes de reportar cifras de tesis |
 | Segundo paquete en la misma distribución | Aislar el código del modelo y su dependencia de TensorFlow del pipeline de datos | Un subpaquete de `avocadoia_datos` mezcla responsabilidades; un repositorio aparte pierde la trazabilidad con los manifiestos |
 | Dos entornos de ejecución (Colab + `.venv-ml` local) | TF en Windows nativo no usa GPU y la PC solo tiene Python 3.15 | Entrenar en CPU local multiplica el tiempo de 6 corridas; todo en Colab impide correr pruebas y `verificar` sin conexión a Colab |

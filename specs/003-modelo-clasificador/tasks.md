@@ -166,6 +166,31 @@ Proyecto único en la raíz de `Entregables`: `src/avocadoia_modelo/`, `tests/`,
 
 ---
 
+## Phase 8b: Prueba de campo propia (agregada 2026-11-10, FR-028–FR-029)
+
+**Goal**: medir el modelo con fotos reales de Sigchos tomadas por los autores, separado de la prueba interna.
+
+- [X] T059 [P] Escribir `scripts/convertir_heic.py`: convierte HEIC/HEIF a JPG junto al original sin modificarlo y registra cada conversión (original, huellas, cámara, fecha de captura) en `datos/etl/conversion_heic.csv`; dependencia `pillow-heif==1.8.1` fijada en `[eda]`. Ejecutado sobre `CAMPO_SIGCHOS/PEDUNCULO` (40 fotos, iPhone 14, 2026-11-06).
+- [X] T060 Implementar `src/avocadoia_modelo/campo.py` y el subcomando `campo-etl`: inventario de `CAMPO_SIGCHOS` con las reglas de 002 (fuente/licencia, SHA-256, duplicado de 002, casi duplicado por dHash, umbrales de calidad de `config/dataset.toml`, características de `etl/caracteristicas.medir`), `manifiesto_campo.csv`, `inventario_campo.json`, tabla y figura comparativa frente a las fuentes del entrenamiento y mosaico; pruebas en `tests/unit/test_modelo_campo.py`. Resultado: 40/40 válidas, solo pedúnculo.
+- [X] T061 (2026-11-10, corrida `20261109-2246`: 40/40 predichas sano, sensibilidad 0 %, confianza media 0,94; ver `hallazgos_campo.md`) Implementar `evaluar-campo --corrida ID` en `src/avocadoia_modelo/campo.py`/`cli.py`: predicciones calibradas de las fotos `test_campo`, distribución de clases predichas, sensibilidad de la clase presente, no concluyentes, mosaico Grad-CAM++ y `datos/modelo/campo/<id>/evaluacion_campo.json` + `predicciones_campo.csv`.
+- [ ] T062 [MANUAL] Validación del agrónomo de las 40 etiquetas de campo y anotación de qué fotos corresponden al mismo fruto (columna `validacion` y grupo por fruto en `manifiesto_campo.csv`).
+- [ ] T063 [MANUAL] Tomar en la próxima salida fotos de pedúnculos SANOS (y de antracnosis) en las mismas condiciones, para medir confusiones y no solo sensibilidad.
+
+## Phase 8c: Split v5 propuesto (agregada 2026-11-10, corrige el punto 1 tras la prueba de campo)
+
+- [X] T064 (PROPUESTA NO ADOPTADA: se conserva como diagnóstico del v4; el equipo eligió el dataset 002, M20) Implementar `src/avocadoia_modelo/split_v5.py` y el subcomando `generar-v5`: a partir del v4 aplica licencia y calidad (FR-026/027), completa el artículo de Flores et al. (2026) con sus pedúnculos sanos y su anillado de val/test con la partición de los autores, agrupa la ráfaga de Herrera y Marín y reasigna los frutos repartidos con partición estratificada por grupos (70/15/15, semilla 42); escribe `datos/modelo/v5/{manifiesto_v5.csv, cambios_v5.csv, resumen_v5.json, informe_v5.md}`; pruebas en `tests/unit/test_modelo_split_v5.py`. Resultado: 2 211 → 1 828 (1 293 / 263 / 272), 0 frutos ni SHA cruzados.
+- [ ] ~~T065~~ (sustituida por la decisión M20) [MANUAL] Revisión y adopción del v5 por el responsable del ETL (o incorporación de sus reglas en su pipeline); validación del agrónomo.
+- [ ] ~~T066~~ (sustituida por T070) [COLAB] Reentrenar con el v5 (`verificar`/`preparar`/`entrenar` con `--manifiesto datos/modelo/v5/manifiesto_v5.csv --raiz-imagenes <Modelo>`), repetir Grad-CAM++ y la prueba de campo (`evaluar-campo`) para comparar antes/después.
+
+## Phase 8d: Cambio al dataset 002 (decisión 2026-11-10, research M20)
+
+- [X] T067 Registrar la decisión en spec (Contexto y Supuestos), plan (Summary, Scale) y research (M20) con la comparación medida v4 frente a 002.
+- [X] T068 (2026-11-10: 2 188 imágenes; huellas de partición `096faf72` y de PROCESADO `9dd9c2bd` coinciden) Implementar `src/avocadoia_modelo/dataset_002.py` y el subcomando `generar-manifiesto-002`: desde `datos/particion.csv` y `datos/manifiesto.csv` escribe `datos/modelo/dataset_002/manifiesto_002.csv` (columnas de M2; `ruta_destino` = `<particion>/<clase>/<id_contenido>.jpg` relativa a `Modelo/PROCESADO`; `sha256` del original; `grupo` de 002; `estado_etiqueta` según `validacion`); comprueba la huella `096faf72…` de la partición y la huella de configuración de `PROCESADO/.configuracion`; pruebas en `tests/unit/test_modelo_dataset_002.py`.
+- [X] T069 (2026-11-10: `verificar` → `ok_con_avisos`; 2 188/2 188 legibles, 0 excluidas, 0 SHA ni frutos cruzados; único aviso: etiquetas provisionales; verificación del v4 en `datos/modelo/historial_v4/`) Verificar el dataset 002 en el PC con `verificar` (raíz `Modelo/PROCESADO`) y guardar la verificación del v4 como historial; actualizar `config/modelo.toml` para que el dataset por defecto sea el 002.
+- [ ] T070 [COLAB] Entrenar con el dataset 002, calibrar, Grad-CAM++ y `evaluar-campo`; comparar v4 frente a 002 en la prueba de campo.
+- [ ] T071 [MANUAL] Resolver la auditoría de etiquetas de 002 (6 % > 2 %) y obtener la validación del agrónomo (muestra con kappa de Cohen).
+- [ ] T072 Informe de viabilidad de los datos (integridad, calidad de etiquetas, curva de aprendizaje, balance, sondas de atajo, distancia entrenamiento–campo).
+
 ## Phase 9: Polish & Cross-Cutting Concerns
 
 - [ ] T053 Implementar `src/avocadoia_modelo/informe.py` y el subcomando `informe`: `datos/modelo/informe_modelo.{md,json}` con verificación, tabla comparativa, decisión, métricas de prueba con IC, calibración, explicabilidad, exportación y latencia; cada cifra cita el `id` de su corrida (SC-007); rótulo "EXPERIMENTAL — split v4 sin corregir / etiquetas sin validación experta" mientras aplique; advertencia de que la clase pedúnculo procede de una sola fuente (`mdpi_pedunculo`) y no permite medir generalización a fuentes nuevas (caso borde de la spec; hallazgo G1); tabla de exclusiones por licencia y calidad desde `verificacion.json`. Tablas, figuras e informe muestran la tercera clase como "Síntomas compatibles con anillado del pedúnculo" usando `ETIQUETAS_VISIBLES` (constitución, principio II; hallazgo F1).

@@ -29,10 +29,17 @@ pedunculo = "pedunculo"
 dataset_002 = "config/dataset.toml"
 fuentes_002 = "config/fuentes.csv"
 manifiesto_002 = "datos/manifiesto.csv"
+caracteristicas_002 = "datos/eda/tablas/caracteristicas.csv"
 # Calidad (FR-027, research M19.1): avocare tiene licencia CC BY 4.0 pero su versión 4 de Roboflow
 # genera 3 variantes aumentadas por original (riesgo de fuga entre particiones).
 fuentes_excluidas = ["avocare_sano", "avocare_antracnosis"]
 motivo_exclusion = "calidad:copias_aumentadas_roboflow_v4"
+
+# Dataset de entrada vigente: partición de la especificación 002 (research M20, decisión 2026-11-10).
+[dataset_002]
+particion = "datos/particion.csv"
+huella_particion = "096faf72d19fd58e0714c998fa4afefa97a6b97df4172fbdea6f3f73365a4bef"
+manifiesto = "datos/modelo/dataset_002/manifiesto_002.csv"
 
 [entrada]
 tamano = 224
@@ -103,14 +110,20 @@ recall_antracnosis = 0.85
 repo_datos = "datos/modelo"
 
 [rutas.pc]
-raiz_imagenes = "G:/Otros ordenadores/Mi portátil/Modelo/Evidencia_Tesis_Aguacate/05_datos/Dataset_split_experimental_v4_20261104_230751"
-manifiesto = "G:/Otros ordenadores/Mi portátil/Modelo/Evidencia_Tesis_Aguacate/05_datos/Dataset_split_experimental_v4_20261104_230751/reportes/manifiesto_split.csv"
+# Dataset 002 (vigente, M20). Historial v4 (descartado):
+#   raiz_imagenes = "G:/Otros ordenadores/Mi portátil/Modelo/Evidencia_Tesis_Aguacate/05_datos/Dataset_split_experimental_v4_20261104_230751"
+#   manifiesto = "<misma carpeta>/reportes/manifiesto_split.csv"
+raiz_imagenes = "G:/Otros ordenadores/Mi portátil/Modelo/PROCESADO"
+manifiesto = "datos/modelo/dataset_002/manifiesto_002.csv"
 salida = "G:/Mi unidad/AvocadoIA/modelo"
+# Carpeta raíz de las imágenes originales (incluye CAMPO_SIGCHOS/ con las fotos de campo propias).
+raiz_modelo = "G:/Otros ordenadores/Mi portátil/Modelo"
 
 [rutas.colab]
-raiz_imagenes = "/content/drive/Othercomputers/Mi portátil/Modelo/Evidencia_Tesis_Aguacate/05_datos/Dataset_split_experimental_v4_20261104_230751"
-manifiesto = "/content/drive/Othercomputers/Mi portátil/Modelo/Evidencia_Tesis_Aguacate/05_datos/Dataset_split_experimental_v4_20261104_230751/reportes/manifiesto_split.csv"
+raiz_imagenes = "/content/drive/Othercomputers/Mi portátil/Modelo/PROCESADO"
+manifiesto = "datos/modelo/dataset_002/manifiesto_002.csv"
 salida = "/content/drive/MyDrive/AvocadoIA/modelo"
+raiz_modelo = "/content/drive/Othercomputers/Mi portátil/Modelo"
 # En Colab el clon del repo se pierde al cerrar la sesión: los artefactos versionables van a Drive y en
 # la PC `importar` los copia a datos/modelo (research M17, M18).
 repo_datos = "/content/drive/MyDrive/AvocadoIA/modelo/datos_modelo"

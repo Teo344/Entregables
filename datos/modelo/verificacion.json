@@ -1,0 +1,68 @@
+{
+  "clases_desconocidas": [],
+  "conteos": {
+    "test": {
+      "antracnosis": 143,
+      "pedunculo": 39,
+      "sano": 145
+    },
+    "train": {
+      "antracnosis": 670,
+      "pedunculo": 184,
+      "sano": 677
+    },
+    "val": {
+      "antracnosis": 145,
+      "pedunculo": 40,
+      "sano": 145
+    }
+  },
+  "conteos_entrada": {
+    "test": {
+      "antracnosis": 143,
+      "pedunculo": 39,
+      "sano": 145
+    },
+    "train": {
+      "antracnosis": 670,
+      "pedunculo": 184,
+      "sano": 677
+    },
+    "val": {
+      "antracnosis": 145,
+      "pedunculo": 40,
+      "sano": 145
+    }
+  },
+  "estado": "ok_con_avisos",
+  "etiquetas_provisionales": {
+    "test": 327,
+    "train": 1531,
+    "val": 330
+  },
+  "excluidas": {
+    "por_fuente": {},
+    "por_motivo": {},
+    "por_particion_clase": {
+      "test": {},
+      "train": {},
+      "val": {}
+    },
+    "total": 0
+  },
+  "faltantes": [],
+  "fecha": "2026-11-10T11:28:19",
+  "fuga_por_fruto": {
+    "detalle": [],
+    "grupos": 0,
+    "imagenes": 0,
+    "imagenes_test": 0
+  },
+  "huella_manifiesto": "09a3cdff1a93f309fa5b46820ecb49df64930706e8b4b064f8efe5c8e82f571b",
+  "ilegibles": [],
+  "raiz_imagenes": "G:/Otros ordenadores/Mi portátil/Modelo/PROCESADO",
+  "ruta_manifiesto": "datos/modelo/dataset_002/manifiesto_002.csv",
+  "ruta_manifiesto_normalizado": "G:/Mi unidad/AvocadoIA/modelo\\manifiestos\\09a3cdff.csv",
+  "sha_cruzados": [],
+  "total": 2188
+}

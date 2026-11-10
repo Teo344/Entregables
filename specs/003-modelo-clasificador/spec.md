@@ -10,6 +10,14 @@
 
 ## Contexto
 
+> **Decisión vigente (2026-11-10): el dataset de entrada es el de la especificación 002** (`datos/particion.csv`,
+> 2 188 imágenes, huella `096faf72`, imágenes a 224 × 224 en `Modelo/PROCESADO/`). El split v4 queda como
+> **experimento descartado**: con él se desarrolló y depuró el flujo, pero tiene 412 imágenes sin licencia, 373 copias
+> aumentadas, 89 frutos repartidos entre particiones y no incluye los pedúnculos sanos del artículo de Flores et al.
+> (2026); su modelo obtuvo 100 % en la prueba interna y **0 de 40** en la prueba de campo (ver
+> `datos/modelo/campo/<corrida>/hallazgos_campo.md`). La comparación de ambos conjuntos está en research M20. El
+> texto siguiente describe la etapa con el v4 y se conserva como historial.
+
 Las especificaciones 001 y 002 construyeron y depuraron el conjunto de datos. El equipo decidió adoptar como
 entrada de esta fase el **split experimental v4** preparado por el compañero (2 211 imágenes: sano 1 000,
 antracnosis 1 000, síntomas compatibles con anillado del pedúnculo 211; 70/15/15), con su manifiesto
@@ -216,6 +224,14 @@ un mapa equivalente al calculado en el entorno de entrenamiento.
 - **FR-027**: El sistema DEBE excluir además las fuentes listadas en la configuración como excluidas por calidad
   (hoy `avocare_sano` y `avocare_antracnosis`, copias aumentadas), registrando el motivo de calidad por separado
   del de licencia.
+- **FR-028**: El sistema DEBE procesar las fotos de campo propias (`Modelo/CAMPO_SIGCHOS/<CLASE>/`, rol
+  `test_campo`) con las reglas de la especificación 002 (fuente y licencia, SHA-256, duplicados exactos frente al
+  manifiesto de 002, casi duplicados, umbrales de calidad), compararlas en el EDA con las fuentes del
+  entrenamiento y usarlas SOLO como prueba de campo independiente: nunca en entrenamiento, selección ni
+  calibración. Los originales HEIC se conservan y se convierten a JPG con registro.
+- **FR-029**: El sistema DEBE evaluar un modelo sobre la prueba de campo y reportar, separado de la prueba
+  interna, la distribución de predicciones, la sensibilidad por clase presente, la confianza calibrada, los casos
+  "no concluyentes" y los mapas Grad-CAM++ de cada foto.
 - **FR-005**: El conjunto de prueba NO DEBE intervenir en el entrenamiento, la selección de hiperparámetros, la
   selección de arquitectura ni la calibración; solo se usa para el reporte final.
 
@@ -315,7 +331,13 @@ un mapa equivalente al calculado en el entorno de entrenamiento.
 
 ## Assumptions
 
-- **Dataset**: se usa el split experimental v4 del compañero
+- **Dataset vigente (2026-11-10)**: la partición de la especificación 002 (`datos/particion.csv`, 2 188 imágenes:
+  sano 967, antracnosis 958, pedúnculo 263; train 1 531 / val 330 / test 327), con las imágenes procesadas de
+  `Modelo/PROCESADO/<particion>/<clase>/<id_contenido>.jpg`. Cumple FR-026/FR-027 (sin fuentes sin licencia ni
+  `avocare`), respeta la partición del artículo y no tiene frutos repartidos. Sus limitaciones medidas en el EDA de
+  002 se tratan como requisitos de viabilidad: auditoría de etiquetas con 6 % de error (criterio ≤ 2 %), sonda de
+  fondo 0,95 (alerta de atajo) y etiquetas sin validación del agrónomo.
+- **Dataset descartado (historial)**: se usó el split experimental v4 del compañero
   (`Evidencia_Tesis_Aguacate/05_datos/Dataset_split_experimental_v4_20261104_230751`, en el Google Drive del
   equipo) para desarrollar y depurar el flujo, **después** del filtro de licencias de FR-026 (1 426 imágenes).
   Antes de reportar métricas finales en la tesis, el compañero DEBE resolver y documentar: (a) retirar del split

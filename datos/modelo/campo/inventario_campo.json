@@ -1,0 +1,15 @@
+{
+  "fecha": "2026-11-10",
+  "fuentes": {
+    "campo_sigchos_pedunculo": 40
+  },
+  "grupos_con_varias_fotos": 1,
+  "grupos_similitud": 39,
+  "por_clase": {
+    "pedunculo": 40
+  },
+  "rechazadas": {},
+  "test_campo": 40,
+  "total": 40,
+  "validacion_experta": "pendiente"
+}
