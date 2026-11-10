@@ -46,3 +46,24 @@ def test_softmax_temperatura():
     lg = np.array([[2.0, 0.0, 0.0]])
     assert me.softmax(lg, 2.0)[0, 0] < me.softmax(lg, 1.0)[0, 0]
     assert me.softmax(lg).sum() == pytest.approx(1.0)
+
+
+def test_planilla_xlsx_ida_y_vuelta(tmp_path):
+    """El .xlsx tiene columnas separadas, lista desplegable y miniaturas; resumir lo lee."""
+    from openpyxl import load_workbook
+
+    filas = [{"n": i + 1, "clase_real": "sano", "tipo": "acierto", "valoracion": "", "sha256": f"s{i}"} for i in range(3)]
+    vistas = [np.zeros((224, 224, 3), np.uint8)] * 3
+    ruta = tmp_path / "planilla_explicaciones.xlsx"
+    me.escribir_planilla_xlsx(str(ruta), filas, vistas)
+    libro = load_workbook(ruta)
+    hoja = libro["valoracion"]
+    assert hoja["A1"].value == "vista" and hoja.max_row == 4
+    assert len(hoja.data_validations.dataValidation) == 1 and len(hoja._images) == 3
+    col = [c.value for c in hoja[1]].index("valoracion") + 1
+    for k, v in zip((2, 3, 4), ("lesion_fruto", "fondo_ajeno", "lesion_fruto")):
+        hoja.cell(k, col).value = v
+    libro.save(ruta)
+    leidas = me.leer_planilla(str(tmp_path))
+    assert [f["valoracion"] for f in leidas] == ["lesion_fruto", "fondo_ajeno", "lesion_fruto"]
+    assert me.resumir(leidas)["por_clase"]["sano"]["fondo_ajeno"] == pytest.approx(1 / 3)

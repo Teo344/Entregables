@@ -15,6 +15,7 @@ from avocadoia_datos.es_csv import escribir_csv, escribir_json, leer_csv, leer_j
 from avocadoia_modelo import CLASES, ETIQUETAS_VISIBLES
 
 VALORACIONES = ("lesion_fruto", "fondo_ajeno", "ambiguo")
+PLURAL = {"acierto": "aciertos", "error": "errores"}
 COLUMNAS_PLANILLA = ("n", "sha256", "ruta", "fuente", "clase_real", "clase_predicha", "confianza", "tipo", "mosaico",
                      "fila_mosaico", "valoracion", "revisor", "fecha", "notas")
 
@@ -58,6 +59,72 @@ def concordancia(a, b, fraccion=0.20):
     k = max(1, int(round(len(a) * fraccion)))
     ta, tb = set(np.argsort(a)[-k:]), set(np.argsort(b)[-k:])
     return {"pearson": pearson, "iou_top": len(ta & tb) / len(ta | tb)}
+
+
+def escribir_planilla_xlsx(ruta, filas, vistas=None):
+    """Planilla de Excel para valorar: columnas separadas (sin depender del separador regional), lista
+    desplegable en `valoracion` y, si se dan, miniaturas de la superposición en la columna `vista`."""
+    import io
+
+    from openpyxl import Workbook
+    from openpyxl.drawing.image import Image as ImagenXl
+    from openpyxl.styles import Alignment, Font, PatternFill
+    from openpyxl.worksheet.datavalidation import DataValidation
+    from PIL import Image
+
+    libro = Workbook()
+    hoja = libro.active
+    hoja.title = "valoracion"
+    columnas = ("vista",) + COLUMNAS_PLANILLA
+    hoja.append(columnas)
+    for c in hoja[1]:
+        c.font = Font(bold=True, color="FFFFFF")
+        c.fill = PatternFill("solid", fgColor="2F5597")
+        c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    hoja.freeze_panes = "B2"
+    anchos = {"vista": 18, "n": 5, "sha256": 12, "ruta": 40, "fuente": 18, "clase_real": 13, "clase_predicha": 13,
+              "confianza": 10, "tipo": 9, "mosaico": 28, "fila_mosaico": 8, "valoracion": 16, "revisor": 14,
+              "fecha": 12, "notas": 40}
+    for i, col in enumerate(columnas, start=1):
+        hoja.column_dimensions[hoja.cell(1, i).column_letter].width = anchos.get(col, 12)
+    lista = DataValidation(type="list", formula1='"' + ",".join(VALORACIONES) + '"', allow_blank=True,
+                           showErrorMessage=True, errorTitle="Valoración",
+                           error="Use lesion_fruto, fondo_ajeno o ambiguo")
+    hoja.add_data_validation(lista)
+    col_val = columnas.index("valoracion") + 1
+    for k, fila in enumerate(filas, start=2):
+        hoja.append([""] + [fila.get(c, "") for c in COLUMNAS_PLANILLA])
+        lista.add(hoja.cell(k, col_val))
+        hoja.cell(k, col_val).fill = PatternFill("solid", fgColor="FFF2CC")
+        for celda in hoja[k]:
+            celda.alignment = Alignment(vertical="center", wrap_text=True)
+        if vistas is not None and k - 2 < len(vistas):
+            buf = io.BytesIO()
+            Image.fromarray(vistas[k - 2]).resize((120, 120)).save(buf, "PNG")
+            buf.seek(0)
+            img = ImagenXl(buf)
+            hoja.add_image(img, f"A{k}")
+            hoja.row_dimensions[k].height = 94
+    libro.save(ruta)
+
+
+def leer_planilla(destino):
+    """Lee la planilla valorada: el .xlsx si existe (lo que editan los revisores); si no, el CSV."""
+    ruta_xlsx = os.path.join(destino, "planilla_explicaciones.xlsx")
+    if os.path.exists(ruta_xlsx):
+        from openpyxl import load_workbook
+
+        hoja = load_workbook(ruta_xlsx, read_only=True, data_only=True)["valoracion"]
+        filas = list(hoja.iter_rows(values_only=True))
+        encabezado = [str(c) for c in filas[0]]
+        def texto(v):
+            if v is None:
+                return ""
+            return v.date().isoformat() if hasattr(v, "date") and callable(v.date) else str(v).strip()
+
+        return [{c: texto(v) for c, v in zip(encabezado, f) if c != "vista"}
+                for f in filas[1:] if any(v not in (None, "") for v in f)]
+    return leer_csv(os.path.join(destino, "planilla_explicaciones.csv"))
 
 
 def _normalizar(mapas):
@@ -177,33 +244,35 @@ def generar(cfg, id_, ruta_cache, repo_datos, salida, verificacion=None):
         norm = os.path.join(salida, "manifiestos", f"{verificacion['huella_manifiesto'][:8]}.csv")
         rutas = {f["sha256"]: f["ruta"] for f in leer_csv(norm)}
     destino = os.path.join(repo_datos, "explicaciones", id_)
-    planilla, n = [], 0
+    planilla, n, vistas = [], 0, []
     for c, clase in enumerate(CLASES):
         for tipo in ("acierto", "error"):
             sel = [(k, i) for k, (i, t) in enumerate(muestra) if t == tipo and d["y"][i] == c]
-            nombre = f"mosaico_{clase}_{tipo}s.png"
+            nombre = f"mosaico_{clase}_{PLURAL[tipo]}.png"
             titulos = [f"real {ETIQUETAS_VISIBLES[c][:30]} · pred {ETIQUETAS_VISIBLES[pred[i]][:30]} · "
                        f"{probs[i].max():.2f}" for _, i in sel]
             mosaico(x[[i for _, i in sel]], mapas[[k for k, _ in sel]], titulos, os.path.join(destino, nombre),
                     f"{ETIQUETAS_VISIBLES[c]} — {tipo}s ({len(sel)})")
-            for fila, (_, i) in enumerate(sel, start=1):
+            for fila, (k, i) in enumerate(sel, start=1):
                 n += 1
+                vistas.append(_superponer(x[i], mapas[k])[0])
                 sha = str(d["sha256"][i])
                 planilla.append({"n": n, "sha256": sha, "ruta": rutas.get(sha, ""), "fuente": str(d["fuente"][i]),
                                  "clase_real": clase, "clase_predicha": CLASES[pred[i]],
                                  "confianza": round(float(probs[i].max()), 4), "tipo": tipo, "mosaico": nombre,
                                  "fila_mosaico": fila, "valoracion": "", "revisor": "", "fecha": "", "notas": ""})
     escribir_csv(os.path.join(destino, "planilla_explicaciones.csv"), COLUMNAS_PLANILLA, planilla)
+    escribir_planilla_xlsx(os.path.join(destino, "planilla_explicaciones.xlsx"), planilla, vistas)
     info = {"corrida": id_, "temperatura": temperatura, "confianza_calibrada": os.path.exists(ruta_cal),
             "n_mapas": len(planilla), "fecha": datetime.date.today().isoformat(),
-            "instrucciones": "Valorar cada fila: lesion_fruto | fondo_ajeno | ambiguo; luego resumir-explicaciones"}
+            "instrucciones": "Valorar cada fila de planilla_explicaciones.xlsx: lesion_fruto | fondo_ajeno | ambiguo; luego resumir-explicaciones"}
     escribir_json(os.path.join(destino, "generacion.json"), info)
     return info
 
 
 def resumir_corrida(repo_datos, id_, umbral):
     destino = os.path.join(repo_datos, "explicaciones", id_)
-    planilla = leer_csv(os.path.join(destino, "planilla_explicaciones.csv"))
+    planilla = leer_planilla(destino)
     invalidas = sorted({f["valoracion"] for f in planilla if f["valoracion"] and f["valoracion"] not in VALORACIONES})
     if invalidas:
         raise ValueError(f"valoraciones no válidas {invalidas}; use {VALORACIONES}")

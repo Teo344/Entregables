@@ -188,7 +188,8 @@ def _cmd_explicar(args):
     info = explicacion.generar(cfg, args.corrida, cache, r["repo_datos"], r["salida"], ver)
     cal = "calibrada" if info["confianza_calibrada"] else "SIN calibrar (T = 1; ejecute `calibrar` antes)"
     print(f"{info['n_mapas']} mapas en {r['repo_datos']}/explicaciones/{args.corrida}/ · confianza {cal}")
-    print("Valore planilla_explicaciones.csv (lesion_fruto | fondo_ajeno | ambiguo) y ejecute resumir-explicaciones")
+    print("Valore planilla_explicaciones.xlsx (columna amarilla: lesion_fruto | fondo_ajeno | ambiguo) "
+          "y ejecute resumir-explicaciones")
     return EXITO
 
 
