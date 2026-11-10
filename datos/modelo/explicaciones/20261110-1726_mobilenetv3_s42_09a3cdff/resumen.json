@@ -1,0 +1,26 @@
+{
+  "cumple_sc005": true,
+  "por_clase": {
+    "antracnosis": {
+      "ambiguo": 0.1,
+      "fondo_ajeno": 0.0,
+      "lesion_fruto": 0.9,
+      "valoradas": 10
+    },
+    "pedunculo": {
+      "ambiguo": 0.0,
+      "fondo_ajeno": 0.0,
+      "lesion_fruto": 1.0,
+      "valoradas": 10
+    },
+    "sano": {
+      "ambiguo": 0.0,
+      "fondo_ajeno": 0.0,
+      "lesion_fruto": 1.0,
+      "valoradas": 10
+    }
+  },
+  "posibles_atajos": [],
+  "sin_valorar": 0,
+  "umbral_atajo": 0.2
+}
