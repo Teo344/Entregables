@@ -310,3 +310,117 @@ Cada decisión se identifica como **M<n>** para citarla desde el plan, las tarea
 - **Alternatives considered**: v4 tal cual (incumple licencias y tiene fuga); v4 filtrado (1 426, sin pedúnculos
   sanos: 0/40 en campo); v5 propuesto (v4 corregido con las reglas de 002: 1 828 imágenes, sin la revisión manual de
   002; se conserva solo como diagnóstico del v4, ver `datos/modelo/v5/informe_v5.md`).
+
+## M21. Proceso de construcción y sustento bibliográfico (agregado el 2026-11-11)
+
+- **Decision**: la construcción del modelo se declara bajo tres marcos complementarios, cada uno en su nivel:
+  1. **Metodología de investigación**: Design Science Research (DSR), en la que el artefacto (clasificador más app)
+     se construye y se evalúa contra el problema.
+  2. **Proceso de aprendizaje automático**: **CRISP-ML(Q)** (Studer et al., 2021), que extiende CRISP-DM con
+     aseguramiento de calidad en cada fase.
+  3. **Proceso de ingeniería de software**: desarrollo guiado por especificaciones (Spec Kit:
+     especificación → plan → tareas → implementación), que deja trazabilidad entre requisito, decisión y código.
+
+  Correspondencia de las fases de CRISP-ML(Q) con este trabajo:
+
+  | Fase de CRISP-ML(Q) | Artefactos de AvocadoIA | Control de calidad aplicado |
+  | --- | --- | --- |
+  | 1. Comprensión del negocio y de los datos | constitución, `spec.md` (FR, SC), metas macro-F1 ≥ 0,85 y recall de antracnosis ≥ 0,85 | criterios de éxito medibles antes de entrenar |
+  | 2. Preparación de datos | especificación 002 (ETL, EDA, revisión manual), M19–M20, `verificar`, caché 224 × 224 | licencias, SHA-256, fuga por fruto = 0, huellas del manifiesto y de la partición |
+  | 3. Ingeniería del modelo | M6–M9: transferencia ImageNet, dos fases, aumento solo en train, 2 arquitecturas × 3 semillas | determinismo, registro y bitácora por corrida, reanudación |
+  | 4. Evaluación | M10–M14 y M12: macro-F1 con IC 95 %, calibración, Grad-CAM++ valorado, McNemar, prueba de campo (FR-028) | selección solo con validación; prueba solo para reportar; campo nunca usado para ajustar |
+  | 5. Despliegue | M15–M16: TFLite con temperatura embebida, latencia en teléfono | pérdida máxima 0,01 y tamaño máximo 10 MB |
+  | 6. Monitoreo y mantenimiento | bitácora, huellas de configuración y manifiesto, `importar` | reproducibilidad SC-006 (repetición con diferencia ≤ 0,01) |
+
+- **Sustento por decisión**:
+
+  | Decisión (sección) | Respaldo |
+  | --- | --- |
+  | CNN como familia de modelos | Mohanty et al. (2016); Upadhyay et al. (2025); Ismail et al. (2026); Nalwanga et al. (2025) para dispositivos con recursos limitados |
+  | MobileNetV3-Large (M6) | Howard et al. (2019) |
+  | EfficientNet-B0 (M6) | Tan y Le (2019) |
+  | Transferencia desde ImageNet (M6) | Yosinski et al. (2014); Kornblith et al. (2019) |
+  | Dos fases, BatchNorm congelada, tasa baja en la fase 2 (M7) | Guía oficial de Keras «Transfer learning & fine-tuning» (Chollet); Ioffe y Szegedy (2015) para el papel de BatchNorm |
+  | Temperature Scaling, ECE y diagrama de fiabilidad (M10) | Guo et al. (2017) |
+  | Umbral de «no concluyente» con curva cobertura–exactitud (M11) | Geifman y El-Yaniv (2017), clasificación selectiva |
+  | Intervalos por bootstrap (M12) | Efron y Tibshirani (1993) |
+  | McNemar para comparar dos clasificadores (M12) | Dietterich (1998); usado también por Flores et al. (2026b) |
+  | Grad-CAM++ (M13) y CAM exportable (M14) | Chattopadhay et al. (2018); Zhou et al. (2016) |
+  | Revisión de atajos con mapas de calor y prueba de campo | Geirhos et al. (2020); Ismail et al. (2026) señala que pocos estudios validan en campo |
+  | Antecedentes en aguacate | Flores et al. (2026a), antracnosis; Flores et al. (2026b), anillado del pedúnculo (fuente de `mdpi_pedunculo`) |
+
+- **Resultado de la regla M12 (2026-11-11)**: con el dataset 002, MobileNetV3 obtuvo 0,976 ± 0,009 de macro-F1
+  medio en val y EfficientNet-B0 0,972 ± 0,003. La diferencia (0,0036) es menor que el margen de 0,02, así que el
+  desempate por tamaño fp16 (≈ 5,7 frente a ≈ 7,7 MB) elige MobileNetV3. McNemar en prueba entre las corridas
+  representativas: p = 0,23 (informativo). Detalle en `datos/modelo/comparacion/bde6ad25/`.
+- **Rationale**: declarar el proceso responde a «¿qué estándar se siguió?», y la tabla de respaldo permite citar cada
+  decisión sin reescribir el diseño.
+- **Pendiente**: (a) agregar a Zotero las referencias que faltan y verificar sus datos completos en la fuente (DOI,
+  volumen y páginas); (b) los dos artículos de Flores et al. (2026) informan que CNN propias y poco profundas
+  superaron a MobileNetV2/V3 en aguacate. Sin una línea base de ese tipo, la elección de transferencia de
+  aprendizaje queda sin contraste experimental (ver la propuesta de línea base, pendiente de decisión).
+
+### Referencias de M21
+
+- Chattopadhay, A., Sarkar, A., Howlader, P. y Balasubramanian, V. N. (2018). Grad-CAM++: Generalized gradient-based
+  visual explanations for deep convolutional networks. *WACV 2018*.
+- Chollet, F. (s. f.). *Transfer learning & fine-tuning*. Guías de Keras. https://keras.io/guides/transfer_learning/
+- Dietterich, T. G. (1998). Approximate statistical tests for comparing supervised classification learning
+  algorithms. *Neural Computation, 10*(7).
+- Efron, B. y Tibshirani, R. J. (1993). *An Introduction to the Bootstrap*. Chapman & Hall.
+- Flores et al. (2026a). A weighted ensemble of convolutional neural networks for anthracnose detection in avocado
+  fruit. *Computers*. https://doi.org/10.3390/computers15060378
+- Flores et al. (2026b). A lightweight shallow CNN-based approach for ring-neck disease detection in avocado fruits.
+  *Computers*. https://doi.org/10.3390/computers15080513
+- Geifman, Y. y El-Yaniv, R. (2017). Selective classification for deep neural networks. *NeurIPS 2017*.
+- Geirhos, R. et al. (2020). Shortcut learning in deep neural networks. *Nature Machine Intelligence, 2*.
+- Guo, C., Pleiss, G., Sun, Y. y Weinberger, K. Q. (2017). On calibration of modern neural networks. *ICML 2017*.
+- Howard, A. et al. (2019). Searching for MobileNetV3. *ICCV 2019*.
+- Ioffe, S. y Szegedy, C. (2015). Batch normalization: Accelerating deep network training by reducing internal
+  covariate shift. *ICML 2015*.
+- Ismail et al. (2026). Explainable artificial intelligence for plant disease detection: a scoping review.
+  *Computers and Electronics in Agriculture*. https://doi.org/10.1016/j.compag.2026.112338
+- Kornblith, S., Shlens, J. y Le, Q. V. (2019). Do better ImageNet models transfer better? *CVPR 2019*.
+- Mohanty, S. P., Hughes, D. P. y Salathé, M. (2016). Using deep learning for image-based plant disease detection.
+  *Frontiers in Plant Science*. https://doi.org/10.3389/fpls.2016.01419
+- Nalwanga et al. (2025). Multi-crop disease detection in computer vision for resource-constrained farms: a review.
+  *IEEE Access*. https://doi.org/10.1109/ACCESS.2025.3647114
+- Studer, S. et al. (2021). Towards CRISP-ML(Q): A machine learning process model with quality assurance
+  methodology. *Machine Learning and Knowledge Extraction, 3*(2).
+- Tan, M. y Le, Q. V. (2019). EfficientNet: Rethinking model scaling for convolutional neural networks. *ICML 2019*.
+- Upadhyay et al. (2025). Deep learning and computer vision in plant disease detection: a comprehensive review.
+  *Artificial Intelligence Review*. https://doi.org/10.1007/s10462-024-11100-x
+- Yosinski, J., Clune, J., Bengio, Y. y Lipson, H. (2014). How transferable are features in deep neural networks?
+  *NeurIPS 2014*.
+- Zhou, B., Khosla, A., Lapedriza, A., Oliva, A. y Torralba, A. (2016). Learning deep features for discriminative
+  localization. *CVPR 2016*.
+## M22. Línea base: CNN5 entrenada desde cero (agregado el 2026-11-11)
+
+- **Decision**: se agrega como línea base la **CNN5 de Flores et al. (2026b)**, su mejor modelo para anillado,
+  reconstruida desde el texto del artículo: 5 Conv2D 3 × 3 con ReLU (32, 64, 128, 256 y 512 filtros), sin
+  BatchNormalization, MaxPooling 2 × 2 tras las 4 primeras, GlobalAveragePooling → Dense 256 ReLU → Dropout →
+  salida. Con 2 salidas suma **1 700 418 parámetros, la cifra que publica el artículo** (Tabla 9), lo que confirma
+  la reconstrucción. Aquí la salida es de 3 clases (1 700 675 parámetros) y entrega logits, como M6.
+- **Protocolo**: los mismos datos (dataset 002), caché, aumento (M8), pesos de clase, semillas (42, 43, 44), parada
+  temprana sobre `val_loss` y evaluación que las arquitecturas de M6. Se entrena **desde cero en una sola fase**,
+  con los valores del artículo: Adam 0,001 y hasta 100 épocas. La paciencia sube de 5 a 10 porque, sin pesos
+  preentrenados, la red converge más lento. Estos valores están en `[linea_base]` de `config/modelo.toml`; esa
+  sección no entra en la huella de configuración (así las 6 corridas comparadas siguen siendo comparables) y se
+  guarda completa en el `registro.json` de cada corrida de línea base.
+- **Papel en la comparación**: la línea base **no compite** en la regla de M12. `comparar` la reporta en la tabla y
+  la figura, y calcula la diferencia de macro-F1 de validación y McNemar en prueba frente a la corrida
+  representativa elegida. Responde a la pregunta P1b: ¿la transferencia desde ImageNet supera a una CNN propia y
+  poco profunda en este problema?
+- **Diferencias con el artículo (no son una réplica exacta del experimento)**: el artículo es binario (sano o
+  anillado), usa un recorte fijo del pedúnculo (ROI de 1500 × 1500), solo fruta Fuerte, lote 16 y equilibra la
+  clase minoritaria con rotaciones; aquí son 3 clases, fruto completo, varias variedades, lote 32 y pesos de clase.
+  En el artículo, MobileNetV3 tenía 246 530 parámetros entrenables (base congelada, solo la cabeza) y obtuvo
+  F1 = 0,618; aquí MobileNetV3 se ajusta en dos fases (M7). Por eso las cifras del artículo no se comparan
+  directamente con las de este trabajo; se compara la CNN5 dentro de este protocolo.
+- **Supuestos**: el artículo no indica la tasa de Dropout ni la posición exacta de las capas de pooling (la cuenta de
+  parámetros no depende de ellas); se usa Dropout 0,3 (como M6) y pooling tras las 4 primeras convoluciones
+  (mapa final de 14 × 14 × 512, usado por Grad-CAM++). La CAM sin gradientes (M14) no aplica a la CNN5 porque su
+  cabeza tiene una capa densa intermedia; no se exporta, así que no afecta.
+- **Alternatives considered**: reproducir el ROI fijo (no aplica a fotos de fruto completo tomadas sin trípode);
+  CNN4 del artículo (su recuento publicado, 9 826 370, no se pudo reconstruir con el texto); MobileNetV3 sin
+  ImageNet (queda como ablación opcional).

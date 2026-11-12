@@ -125,3 +125,45 @@ def arquitectura(info, ruta_png):
     fig.savefig(ruta_png, dpi=200, bbox_inches="tight")
     plt.close(fig)
     return ruta_png
+
+
+def comparacion(tabla, ruta_png, titulo, nombres=None):
+    """Barras de macro-F1 (val y test) y recall por clase en test, media ± desviación y puntos por semilla (T036)."""
+    from matplotlib.ticker import FuncFormatter
+
+    from avocadoia_modelo import CLASES, ETIQUETAS_VISIBLES
+
+    metricas = [("val_macro_f1", "Macro-F1\nvalidación"), ("test_macro_f1", "Macro-F1\nprueba")]
+    # Término completo de la constitución, partido en líneas para que quepa bajo la barra.
+    etiquetas = [e.replace("compatibles con ", "compatibles con\n") for e in ETIQUETAS_VISIBLES]
+    metricas += [(f"test_recall_{c}", f"Recall prueba\n{e}") for c, e in zip(CLASES, etiquetas)]
+    arqs = list(tabla)
+    nombres = nombres or {}
+    ancho = 0.8 / len(arqs)
+    fig, eje = plt.subplots(figsize=(10, 4.8))
+    minimo = 1.0
+    for i, arq in enumerate(arqs):
+        f = tabla[arq]
+        xs = [j + (i - (len(arqs) - 1) / 2) * ancho for j in range(len(metricas))]
+        medias = [f[f"{m}_media"] for m, _ in metricas]
+        desv = [f[f"{m}_desv"] for m, _ in metricas]
+        eje.bar(xs, medias, ancho * 0.95, yerr=desv, capsize=3, alpha=0.8,
+                label=f"{nombres.get(arq, arq)} (n = {f['n']})")
+        for x, (m, _) in zip(xs, metricas):
+            valores = f[f"{m}_valores"]
+            minimo = min(minimo, *valores)
+            eje.plot([x] * len(valores), valores, "o", color="black", markersize=3)
+        for x, v in zip(xs, medias):
+            eje.text(x, 1.003, f"{v:.3f}".replace(".", ","), ha="center", va="bottom", fontsize=7)
+    eje.set_xticks(range(len(metricas)))
+    eje.set_xticklabels([n for _, n in metricas], fontsize=8)
+    eje.set_ylim(max(0.0, minimo - 0.08), 1.03)
+    eje.yaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:.2f}".replace(".", ",")))
+    eje.grid(axis="y", alpha=0.3)
+    eje.legend(fontsize=8, loc="upper center", bbox_to_anchor=(0.5, -0.2), ncol=len(arqs), frameon=False)
+    eje.set_title(titulo)
+    fig.tight_layout()
+    os.makedirs(os.path.dirname(ruta_png) or ".", exist_ok=True)
+    fig.savefig(ruta_png, dpi=150)
+    plt.close(fig)
+    return ruta_png

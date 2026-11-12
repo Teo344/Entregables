@@ -8,8 +8,9 @@ import tomllib
 
 SECCIONES = ("datos", "filtros", "entrada", "modelo", "fase1", "fase2", "parada", "aumento", "entrenamiento",
              "evaluacion", "seleccion", "calibracion", "explicacion", "exportacion", "metas", "rutas")
-# Claves que nunca entran en la huella: rutas (cambian entre Colab y PC) y lo propio de cada corrida.
-_FUERA_DE_HUELLA = ("rutas", "corrida")
+# Claves que nunca entran en la huella: rutas (cambian entre Colab y PC), lo propio de cada corrida y la línea
+# base (research M22: se agregó después de la comparación y se registra aparte en cada corrida de línea base).
+_FUERA_DE_HUELLA = ("rutas", "corrida", "linea_base")
 
 
 class ErrorConfig(ValueError):
@@ -35,9 +36,17 @@ def cargar(ruta="config/modelo.toml", entorno_=None):
     return cfg
 
 
+def arquitecturas_linea_base(cfg):
+    return tuple(cfg.get("linea_base", {}).get("arquitecturas", ()))
+
+
+def es_linea_base(cfg, arquitectura):
+    return arquitectura in arquitecturas_linea_base(cfg)
+
+
 def con_corrida(cfg, arquitectura, semilla):
     """Copia de la configuración con los dos únicos valores que varían entre corridas comparables."""
-    if arquitectura not in cfg["modelo"]["arquitecturas"]:
+    if arquitectura not in (*cfg["modelo"]["arquitecturas"], *arquitecturas_linea_base(cfg)):
         raise ErrorConfig(f"arquitectura desconocida: {arquitectura}")
     nueva = copy.deepcopy(cfg)
     nueva["corrida"] = {"arquitectura": arquitectura, "semilla": int(semilla)}

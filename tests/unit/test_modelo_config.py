@@ -36,6 +36,19 @@ def test_huella_cambia_con_hiperparametro():
     assert mc.huella_config(otra) != mc.huella_config(cfg)
 
 
+def test_linea_base_no_altera_la_huella_de_la_comparacion():
+    """M22: agregar o ajustar [linea_base] no invalida las 6 corridas ya comparadas."""
+    cfg = mc.cargar("config/modelo.toml", entorno_="pc")
+    assert mc.huella_config(cfg).startswith("bde6ad25")  # huella de las corridas del dataset 002
+    otra = copy.deepcopy(cfg)
+    otra["linea_base"]["tasa"] = 5e-4
+    del otra["linea_base"]
+    assert mc.huella_config(otra) == mc.huella_config(cfg)
+    lb = mc.con_corrida(cfg, "cnn5", 43)
+    assert mc.es_linea_base(lb, "cnn5") and not mc.es_linea_base(lb, "mobilenetv3")
+    assert mc.huella_config(lb) == mc.huella_config(cfg)
+
+
 def test_arquitectura_desconocida():
     cfg = mc.cargar("config/modelo.toml", entorno_="pc")
     with pytest.raises(mc.ErrorConfig):

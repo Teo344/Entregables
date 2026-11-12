@@ -1,0 +1,68 @@
+{
+  "arquitectura": "mobilenetv3",
+  "corrida_representativa": "20261110-2114_mobilenetv3_s43_09a3cdff",
+  "corridas_usadas": [
+    "20261110-1705_mobilenetv3_s42_09a3cdff",
+    "20261110-2114_mobilenetv3_s43_09a3cdff",
+    "20261111-1338_mobilenetv3_s44_09a3cdff",
+    "20261111-1404_efficientnetb0_s42_09a3cdff",
+    "20261112-0017_efficientnetb0_s43_09a3cdff",
+    "20261112-0037_efficientnetb0_s44_09a3cdff"
+  ],
+  "diferencia_val_macro_f1": 0.003582,
+  "experimental": true,
+  "fecha": "2026-11-11",
+  "huella_config": "bde6ad255e10e8df65594a030945b4ada11e1fb0676c265d8c0c654e91c8c2d1",
+  "huella_manifiesto": "09a3cdff1a93f309fa5b46820ecb49df64930706e8b4b064f8efe5c8e82f571b",
+  "lineas_base": {},
+  "margen": 0.02,
+  "mcnemar_test": {
+    "a": "20261112-0037_efficientnetb0_s44_09a3cdff",
+    "b": "20261110-2114_mobilenetv3_s43_09a3cdff",
+    "calculado": true,
+    "discordantes": 11,
+    "nota": "Informativo sobre prueba; no interviene en la regla de selección (FR-005).",
+    "p_valor": 0.2265625,
+    "solo_a_acierta": 3,
+    "solo_b_acierta": 8
+  },
+  "metas_por_semilla": {
+    "efficientnetb0": true,
+    "mobilenetv3": true
+  },
+  "metas_representativa": {
+    "cumple": true,
+    "detalle": {
+      "macro_f1": {
+        "cumple": true,
+        "meta": 0.85,
+        "valor": 0.9763763410053162
+      },
+      "recall_antracnosis": {
+        "cumple": true,
+        "meta": 0.85,
+        "valor": 0.9790209790209791
+      }
+    }
+  },
+  "metodo_tamano_fp16": "estimado: n_parámetros × 2 bytes (sin exportación TFLite todavía)",
+  "regla": "desempate_por_tamano_fp16",
+  "repetidas_no_usadas": [
+    "20261110-1726_mobilenetv3_s42_09a3cdff",
+    "20261111-2305_mobilenetv3_s43_09a3cdff",
+    "20261111-2330_mobilenetv3_s44_09a3cdff",
+    "20261111-2354_efficientnetb0_s42_09a3cdff"
+  ],
+  "representativas": {
+    "efficientnetb0": "20261112-0037_efficientnetb0_s44_09a3cdff",
+    "mobilenetv3": "20261110-2114_mobilenetv3_s43_09a3cdff"
+  },
+  "tamano_fp16_mb": {
+    "efficientnetb0": 7.73,
+    "mobilenetv3": 5.72
+  },
+  "val_macro_f1_media": {
+    "efficientnetb0": 0.9723173703362812,
+    "mobilenetv3": 0.9758995969249556
+  }
+}

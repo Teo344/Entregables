@@ -18,7 +18,7 @@ import tensorflow as tf
 from avocadoia_datos.es_csv import escribir_csv, leer_csv, leer_json
 
 from avocadoia_modelo import arquitecturas, datos_tf, figuras, metricas, preparacion, registro
-from avocadoia_modelo.config import canonica, huella_config
+from avocadoia_modelo.config import canonica, es_linea_base, huella_config
 
 COLUMNAS_HISTORIAL = ("epoca", "fase", "loss", "val_loss", "accuracy", "val_accuracy", "learning_rate")
 
@@ -112,6 +112,9 @@ def entrenar(cfg, ruta_cache, repo_datos, salida, verificacion, pesos="imagenet"
         checkpoint.best = min(float(f["val_loss"]) for f in previas)
 
     reg = registro.leer_registro(repo_datos, id_)
+    if es_linea_base(cfg, arq):
+        return _entrenar_linea_base(cfg, id_, modelo, capas_base, capa_mapa, ds_tr, ds_va, pesos_clase, checkpoint,
+                                    dir_drive, repo_datos, inicio, tr, va)
     ruta_f1 = os.path.join(dir_drive, "fase1.weights.h5")
     if reg.get("fase1_completa") and os.path.exists(ruta_f1):
         modelo.load_weights(ruta_f1)
@@ -131,20 +134,42 @@ def entrenar(cfg, ruta_cache, repo_datos, salida, verificacion, pesos="imagenet"
     modelo.fit(ds_tr, validation_data=ds_va, initial_epoch=e1, epochs=e1 + cfg["fase2"]["epocas"],
                class_weight=pesos_clase, callbacks=_callbacks(cfg, dir_drive, "fase2", checkpoint), verbose=2)
 
+    _cerrar(cfg, id_, dir_drive, repo_datos, ("fase1", "fase2"), inicio, tr, va, capa_mapa=capa_mapa,
+            capas_base=len(capas_base), capas_entrenables_fase2=entrenables, epocas_fase1=e1,
+            epocas_fase2=len(_historial(dir_drive, "fase2")), pesos_clase=pesos_clase)
+    return id_
+
+
+def _entrenar_linea_base(cfg, id_, modelo, capas_base, capa_mapa, ds_tr, ds_va, pesos_clase, checkpoint, dir_drive,
+                         repo_datos, inicio, tr, va):
+    """Una sola fase, todo entrenable desde cero (research M22). Misma parada, pesos de clase y aumento que M7–M8,
+    con la tasa, las épocas máximas y la paciencia de [linea_base]."""
+    lb = cfg["linea_base"]
+    cfg_parada = {**cfg, "parada": {**cfg["parada"], "paciencia": lb["paciencia"]}}
+    _compilar(modelo, lb["tasa"])
+    # Igual que la fase 1 normal: BackupAndRestore retoma la época si Colab se desconecta.
+    modelo.fit(ds_tr, validation_data=ds_va, epochs=lb["epocas"],
+               class_weight=pesos_clase, callbacks=_callbacks(cfg_parada, dir_drive, "fase1", checkpoint), verbose=2)
+    _cerrar(cfg, id_, dir_drive, repo_datos, ("fase1",), inicio, tr, va, capa_mapa=capa_mapa,
+            capas_base=len(capas_base), capas_entrenables_fase2=0, epocas_fase1=len(_historial(dir_drive, "fase1")),
+            epocas_fase2=0, pesos_clase=pesos_clase, linea_base=lb, desde_cero=True,
+            parametros=int(modelo.count_params()))
+    return id_
+
+
+def _cerrar(cfg, id_, dir_drive, repo_datos, fases, inicio, tr, va, **campos):
+    """Historial, curvas y campos finales del registro (comunes a las arquitecturas y a la línea base)."""
+    arq, semilla = cfg["corrida"]["arquitectura"], cfg["corrida"]["semilla"]
     historial = [{"epoca": int(f["epoch"]) + 1, "fase": fase, "loss": f["loss"], "val_loss": f["val_loss"],
                   "accuracy": f.get("accuracy", ""), "val_accuracy": f.get("val_accuracy", ""),
                   "learning_rate": f.get("learning_rate", "")}
-                 for fase in ("fase1", "fase2") for f in _historial(dir_drive, fase)]
+                 for fase in fases for f in _historial(dir_drive, fase)]
     dir_repo = os.path.dirname(registro.ruta_registro(repo_datos, id_))
     escribir_csv(os.path.join(dir_repo, "historial.csv"), COLUMNAS_HISTORIAL, historial)
     figuras.curvas_entrenamiento(historial, os.path.join(dir_repo, "curvas.png"), f"{arq} · semilla {semilla}")
-
     reg = registro.leer_registro(repo_datos, id_)
-    reg.update(capa_mapa=capa_mapa, capas_base=len(capas_base), capas_entrenables_fase2=entrenables,
-               epocas_fase1=e1, epocas_fase2=len(_historial(dir_drive, "fase2")), pesos_clase=pesos_clase,
-               duracion_min=round(reg.get("duracion_min", 0) + (time.time() - inicio) / 60, 2),
+    reg.update(**campos, duracion_min=round(reg.get("duracion_min", 0) + (time.time() - inicio) / 60, 2),
                tamano_keras_mb=round(os.path.getsize(os.path.join(dir_drive, "mejor.keras")) / 2**20, 3),
                versiones=registro.versiones(), n_train=int(len(tr["y"])), n_val=int(len(va["y"])),
                distribucion_train=np.bincount(tr["y"].astype(int), minlength=3).tolist())
     registro.escribir_registro(repo_datos, reg)
-    return id_

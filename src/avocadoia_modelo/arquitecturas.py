@@ -10,6 +10,22 @@ import keras
 from avocadoia_modelo import CLASES
 
 ARQUITECTURAS = ("mobilenetv3", "efficientnetb0")
+LINEAS_BASE = ("cnn5",)
+# Capas de la cabeza: no forman parte del extractor de características (ni del mapa de Grad-CAM++).
+CABEZA = ("gap", "densa", "dropout", "logits")
+
+
+def _cnn5(entrada):
+    """CNN5 de Flores et al. (2026b): 5 Conv2D 3 × 3 ReLU (32, 64, 128, 256, 512) sin BatchNorm, MaxPooling 2 × 2
+    tras las 4 primeras, entrenada desde cero. Con su cabeza (GAP → Dense 256 → Dropout → 2 salidas) suma
+    1 700 418 parámetros, la cifra que publica el artículo; aquí la salida es de 3 clases (research M22).
+    Las imágenes llegan en 0–255 y se reescalan a 0–1 dentro del modelo."""
+    x = keras.layers.Rescaling(1.0 / 255, name="reescalado")(entrada)
+    for i, filtros in enumerate((32, 64, 128, 256, 512), start=1):
+        x = keras.layers.Conv2D(filtros, 3, padding="same", activation="relu", name=f"conv{i}")(x)
+        if i < 5:
+            x = keras.layers.MaxPooling2D(2, name=f"pool{i}")(x)
+    return x
 
 
 def _base(arquitectura, entrada, pesos):
@@ -24,6 +40,15 @@ def _base(arquitectura, entrada, pesos):
 def construir(arquitectura, dropout=0.3, pesos="imagenet", tamano=224):
     """Devuelve (modelo, capas_base, nombre_capa_mapa)."""
     entrada = keras.Input((tamano, tamano, 3), name="imagen")
+    if arquitectura in LINEAS_BASE:
+        mapa = _cnn5(entrada)
+        x = keras.layers.GlobalAveragePooling2D(name="gap")(mapa)
+        x = keras.layers.Dense(256, activation="relu", name="densa")(x)
+        x = keras.layers.Dropout(dropout, name="dropout")(x)
+        logits = keras.layers.Dense(len(CLASES), name="logits")(x)
+        modelo = keras.Model(entrada, logits, name=arquitectura)
+        capas_base = capas_del_modelo_base(modelo)
+        return modelo, capas_base, capas_base[-1].name
     base = _base(arquitectura, entrada, pesos)
     mapa = base.output
     x = keras.layers.GlobalAveragePooling2D(name="gap")(mapa)
@@ -37,7 +62,7 @@ def construir(arquitectura, dropout=0.3, pesos="imagenet", tamano=224):
 def capas_del_modelo_base(modelo):
     """Capas del modelo base dentro de un modelo ya construido o cargado (todas menos entrada y cabeza)."""
     return [c for c in modelo.layers
-            if not isinstance(c, keras.layers.InputLayer) and c.name not in ("gap", "dropout", "logits")]
+            if not isinstance(c, keras.layers.InputLayer) and c.name not in CABEZA]
 
 
 def nombre_capa_mapa(modelo):

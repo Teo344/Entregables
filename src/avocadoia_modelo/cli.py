@@ -34,8 +34,11 @@ def _parser():
     pp = sub.add_parser("preparar", parents=[comun], help="Caché 224 × 224 (.npz) desde el manifiesto verificado")
     pp.add_argument("--forzar", action="store_true")
     pe = sub.add_parser("entrenar", parents=[comun], help="Entrena una corrida y la evalúa")
-    pe.add_argument("--arquitectura", required=True, choices=("mobilenetv3", "efficientnetb0"))
+    pe.add_argument("--arquitectura", required=True, choices=("mobilenetv3", "efficientnetb0", "cnn5"),
+                    help="cnn5 = línea base desde cero (Flores et al., 2026b; research M22)")
     pe.add_argument("--semilla", required=True, type=int)
+    pm = sub.add_parser("comparar", parents=[comun], help="Compara arquitecturas (3 semillas) y elige una (M12)")
+    pm.add_argument("--ejecutar", action="store_true", help="entrena antes las corridas que falten")
     pv = sub.add_parser("evaluar", parents=[comun], help="Evalúa una corrida (val y test)")
     pv.add_argument("--corrida", required=True)
     px = sub.add_parser("explicar", parents=[comun], help="Mapas Grad-CAM++ de aciertos y errores + planilla")
@@ -162,6 +165,149 @@ def _cmd_entrenar(args):
             registro.actualizar_estado(r["repo_datos"], id_, "incompleta")
         raise
     _imprimir_metricas(id_, res)
+    return EXITO
+
+
+def _tamanos_fp16(arquitecturas_):
+    """Estimación n_parámetros × 2 bytes mientras no exista la exportación (T035, hallazgo O1)."""
+    from avocadoia_modelo import arquitecturas
+
+    return {a: round(arquitecturas.construir(a, pesos=None)[0].count_params() * 2 / 2**20, 2) for a in arquitecturas_}
+
+
+def _mcnemar_par(salida, corrida_a, corrida_b):
+    """McNemar exacto en prueba entre dos corridas (a = primera, b = segunda), a partir de sus logits en Drive."""
+    import os
+
+    import numpy as np
+
+    from avocadoia_modelo import seleccion
+
+    datos = []
+    for c in (corrida_a, corrida_b):
+        ruta = os.path.join(salida, "experimentos", c["id"], "logits.npz")
+        if not os.path.exists(ruta):
+            return {"calculado": False, "motivo": f"faltan los logits de {c['id']}"}
+        with np.load(ruta, allow_pickle=False) as d:
+            datos.append((d["y_test"], d["logits_test"].argmax(axis=1)))
+    if not np.array_equal(datos[0][0], datos[1][0]):
+        return {"calculado": False, "motivo": "las corridas no tienen el mismo conjunto de prueba"}
+    res = seleccion.mcnemar(datos[0][0].tolist(), datos[0][1].tolist(), datos[1][1].tolist())
+    return {"calculado": True, "a": corrida_a["id"], "b": corrida_b["id"], **res,
+            "nota": "Informativo sobre prueba; no interviene en la regla de selección (FR-005)."}
+
+
+def _cmd_comparar(args):
+    import argparse as _ap
+    import datetime
+    import os
+
+    from avocadoia_datos.es_csv import leer_json
+
+    from avocadoia_modelo import figuras, seleccion
+
+    cfg, r = _rutas(args)
+    ruta_ver = os.path.join(r["repo_datos"], "verificacion.json")
+    if not os.path.exists(ruta_ver):
+        print("Error: no hay verificacion.json: ejecute `verificar`", file=sys.stderr)
+        return ERROR_DATOS
+    huella_m = leer_json(ruta_ver)["huella_manifiesto"]
+    huella_c = mconfig.huella_config(cfg)
+    semillas = tuple(cfg["entrenamiento"]["semillas"])
+    arqs = tuple(cfg["modelo"]["arquitecturas"])
+    if args.ejecutar:
+        hechas = {(c["arquitectura"], c["semilla"]) for c in seleccion.seleccionar(
+            seleccion.leer_corridas(r["repo_datos"]), semillas, huella_c, huella_m)}
+        for arq in arqs:
+            for s in semillas:
+                if (arq, s) not in hechas:
+                    print(f"Entrenando {arq} semilla {s}…", flush=True)
+                    codigo = _cmd_entrenar(_ap.Namespace(**{**vars(args), "arquitectura": arq, "semilla": s}))
+                    if codigo != EXITO:
+                        return codigo
+    todas = seleccion.leer_corridas(r["repo_datos"])
+    todas_elegidas = seleccion.seleccionar(todas, semillas, huella_c, huella_m)
+    elegidas = [c for c in todas_elegidas if c["arquitectura"] in arqs]
+    lineas = [c for c in todas_elegidas if mconfig.es_linea_base(cfg, c["arquitectura"])]
+    try:
+        seleccion.validar_igualdad(elegidas, minimo=len(semillas))
+    except seleccion.ComparacionInvalida as e:
+        print(f"Comparación inválida: {e}", file=sys.stderr)
+        print(f"  (configuración {huella_c[:8]}, manifiesto {huella_m[:8]}; use `comparar --ejecutar` o importe las "
+              "corridas de Colab)", file=sys.stderr)
+        return ERROR_COMPARACION
+    tamanos = _tamanos_fp16(arqs)
+    tabla = seleccion.agregar(elegidas, tamanos)
+    decision = seleccion.elegir(tabla, cfg["seleccion"]["margen"])
+    rep = {a: seleccion.representativa(elegidas, a) for a in tabla}
+    ganadora = rep[decision["arquitectura"]]
+    metas = cfg["metas"]
+    decision.update(
+        fecha=datetime.date.today().isoformat(), corrida_representativa=ganadora["id"],
+        representativas={a: c["id"] for a, c in rep.items()},
+        metodo_tamano_fp16="estimado: n_parámetros × 2 bytes (sin exportación TFLite todavía)",
+        metas_representativa=seleccion.cumple_metas(
+            {"macro_f1": ganadora["test_macro_f1"], "recall_antracnosis": ganadora["test_recall"]["antracnosis"]}, metas),
+        metas_por_semilla={a: all(seleccion.cumple_metas({"macro_f1": c["test_macro_f1"],
+                                                          "recall_antracnosis": c["test_recall"]["antracnosis"]},
+                                                         metas)["cumple"] for c in elegidas if c["arquitectura"] == a)
+                           for a in tabla},
+        mcnemar_test=_mcnemar_par(r["salida"], *(rep[a] for a in sorted(rep))),
+        corridas_usadas=sorted(c["id"] for c in elegidas),
+        repetidas_no_usadas=seleccion.repetidas(todas, todas_elegidas),
+        huella_config=huella_c, huella_manifiesto=huella_m,
+        experimental=any(c["experimental"] for c in elegidas))
+    # Líneas base (M22): se reportan y se contrastan con la representativa elegida, sin entrar en la regla.
+    tabla_lb = seleccion.agregar(lineas, _tamanos_fp16(sorted({c["arquitectura"] for c in lineas}))) if lineas else {}
+    decision["lineas_base"] = {}
+    for a, f in tabla_lb.items():
+        rep_lb = seleccion.representativa(lineas, a)
+        decision["lineas_base"][a] = {
+            "n": f["n"], "corridas": f["corridas"], "corrida_representativa": rep_lb["id"],
+            "completa_semillas": f["n"] >= len(semillas),
+            "val_macro_f1_media": f["val_macro_f1_media"], "test_macro_f1_media": f["test_macro_f1_media"],
+            "diferencia_val_frente_a_elegida": round(tabla[decision["arquitectura"]]["val_macro_f1_media"]
+                                                     - f["val_macro_f1_media"], 6),
+            "mcnemar_test_frente_a_elegida": _mcnemar_par(r["salida"], ganadora, rep_lb)}
+    for f in tabla.values():
+        f["rol"] = "candidata"
+    for f in tabla_lb.values():
+        f["rol"] = "linea_base"
+    destino = os.path.join(r["repo_datos"], "comparacion", huella_c[:8])
+    seleccion.escribir(destino, {**tabla, **tabla_lb}, decision)
+    nombres = {"mobilenetv3": "MobileNetV3-Large", "efficientnetb0": "EfficientNet-B0",
+               "cnn5": "CNN5 desde cero (línea base)"}
+    figuras.comparacion({**tabla, **tabla_lb}, os.path.join(destino, "figura_comparacion.png"),
+                        "Comparación de arquitecturas · media ± desviación de 3 semillas", nombres)
+    print(f"Comparación (configuración {huella_c[:8]}, manifiesto {huella_m[:8]})"
+          + ("  [EXPERIMENTAL]" if decision["experimental"] else ""))
+    for a, f in {**tabla, **tabla_lb}.items():
+        print(f"  {a:<15} n={f['n']} · val macro-F1 {f['val_macro_f1_media']:.4f} ± {f['val_macro_f1_desv']:.4f} · "
+              f"test macro-F1 {f['test_macro_f1_media']:.4f} ± {f['test_macro_f1_desv']:.4f} · "
+              f"recall antracnosis {f['test_recall_antracnosis_media']:.3f} · "
+              f"recall pedúnculo {f['test_recall_pedunculo_media']:.3f} · fp16 ≈ {f['tamano_fp16_mb']} MB")
+    print(f"  Diferencia val: {decision['diferencia_val_macro_f1']:.4f} (margen {decision['margen']}) → regla "
+          f"{decision['regla']} → {decision['arquitectura']}")
+    print(f"  Corrida representativa: {ganadora['id']} · metas: "
+          f"{'cumple' if decision['metas_representativa']['cumple'] else 'NO cumple'}")
+    m = decision["mcnemar_test"]
+    if m["calculado"]:
+        print(f"  McNemar (test, informativo): solo {m['a'].split('_')[1]} acierta {m['solo_a_acierta']} · "
+              f"solo {m['b'].split('_')[1]} acierta {m['solo_b_acierta']} · p = {m['p_valor']:.3f}")
+    else:
+        print(f"  McNemar: no calculado ({m['motivo']})")
+    for a, lb in decision["lineas_base"].items():
+        m = lb["mcnemar_test_frente_a_elegida"]
+        detalle = (f"solo la elegida acierta {m['solo_a_acierta']} · solo {a} acierta {m['solo_b_acierta']} · "
+                   f"p = {m['p_valor']:.3g}" if m["calculado"] else m["motivo"])
+        aviso = "" if lb["completa_semillas"] else f"  [solo {lb['n']} de {len(semillas)} semillas]"
+        print(f"  Línea base {a}: diferencia val frente a la elegida {lb['diferencia_val_frente_a_elegida']:+.4f} · "
+              f"McNemar {detalle}{aviso}")
+    if not decision["lineas_base"]:
+        print("  Línea base: sin corridas (entrene `--arquitectura cnn5` con las 3 semillas)")
+    if decision["repetidas_no_usadas"]:
+        print(f"  Repeticiones no usadas: {len(decision['repetidas_no_usadas'])}")
+    print(f"  Archivos en {destino}/")
     return EXITO
 
 
@@ -423,7 +569,7 @@ def _cmd_importar(args):
 
 
 COMANDOS = {"verificar": _cmd_verificar, "importar": _cmd_importar, "preparar": _cmd_preparar,
-            "entrenar": _cmd_entrenar, "evaluar": _cmd_evaluar, "explicar": _cmd_explicar,
+            "entrenar": _cmd_entrenar, "comparar": _cmd_comparar, "evaluar": _cmd_evaluar, "explicar": _cmd_explicar,
             "resumir-explicaciones": _cmd_resumir_explicaciones, "calibrar": _cmd_calibrar, "diagrama": _cmd_diagrama, "campo-etl": _cmd_campo_etl, "generar-v5": _cmd_generar_v5, "generar-manifiesto-002": _cmd_generar_manifiesto_002, "evaluar-campo": _cmd_evaluar_campo, "spike-explain": _cmd_spike_explain}
 
 

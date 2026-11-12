@@ -72,6 +72,33 @@ def test_corrida_minima(tmp_path, monkeypatch):
     assert os.path.exists(os.path.join(salida, "experimentos", id_, "logits.npz"))
 
 
+def test_cnn5_replica_flores():
+    """CNN5 de Flores et al. (2026b): 1 700 418 parámetros con 2 salidas; con 3 salidas, 257 más."""
+    from avocadoia_modelo import arquitecturas
+
+    modelo, capas, mapa = arquitecturas.construir("cnn5")
+    assert modelo.count_params() == 1_700_418 + 257
+    assert mapa == "conv5" and modelo.get_layer("conv5").output.shape[1:] == (14, 14, 512)
+    assert not any(isinstance(c, tf.keras.layers.BatchNormalization) for c in modelo.layers)
+
+
+def test_linea_base_una_fase_desde_cero(tmp_path):
+    cache, huella = _cache_sintetica(tmp_path)
+    repo, salida = str(tmp_path / "repo"), str(tmp_path / "drive")
+    ver = {"huella_manifiesto": huella, "estado": "ok", "etiquetas_provisionales": {}, "fuga_por_fruto": {"grupos": 0}}
+    cfg = copy.deepcopy(_cfg())
+    cfg["linea_base"]["epocas"] = 2
+    cfg = mc.con_corrida(cfg, "cnn5", 42)
+    id_ = entrenamiento.entrenar(cfg, cache, repo, salida, ver)
+    reg = registro.leer_registro(repo, id_)
+    assert reg["desde_cero"] and reg["epocas_fase2"] == 0 and reg["linea_base"]["tasa"] == 1e-3
+    assert reg["huella_config"] == mc.huella_config(cfg)
+    fases = {f["fase"] for f in leer_csv(os.path.join(repo, "experimentos", id_, "historial.csv"))}
+    assert fases == {"fase1"}
+    res = evaluacion.evaluar(cfg, id_, cache, repo, salida)
+    assert res["test"]["n"] == 3
+
+
 def test_reanudacion_reutiliza_id(tmp_path):
     cache, huella = _cache_sintetica(tmp_path)
     repo, salida = str(tmp_path / "repo"), str(tmp_path / "drive")

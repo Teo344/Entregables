@@ -108,11 +108,11 @@ Proyecto único en la raíz de `Entregables`: `src/avocadoia_modelo/`, `tests/`,
 
 **Independent Test**: `comparar` genera `comparacion/<h>/tabla.csv` y `decision.json`; una corrida con otra `huella_config` hace salir con código 3.
 
-- [ ] T033 [P] [US2] Escribir `tests/unit/test_modelo_seleccion.py`: agregación media ± desviación muestral con 3 corridas; regla: diferencia ≥ 0,02 → gana el mayor macro-F1 medio de **validación**; diferencia < 0,02 → gana el de menor tamaño fp16; corridas con `huella_config` o `huella_manifiesto` distintas → `ComparacionInvalida`; corridas `incompleta` se excluyen; menos de 3 corridas completas por arquitectura → `ComparacionInvalida`.
-- [ ] T034 [US2] Implementar `src/avocadoia_modelo/seleccion.py` (research M12): `agregar(corridas)`, `validar_igualdad(corridas)`, `elegir(tabla, margen)`, `cumple_metas(metricas_test, metas)`; escribe `datos/modelo/comparacion/<huella_config8>/tabla.csv` y `decision.json` (arquitectura, corrida representativa = mayor val macro-F1 de esa arquitectura, regla aplicada, diferencia, cumplimiento de metas FR-015) (data-model.md §7).
-- [ ] T035 [US2] Registrar `comparar [--ejecutar]` en `cli.py`: sin `--ejecutar` agrega las corridas existentes; con él lanza las corridas faltantes (2 arquitecturas × `entrenamiento.semillas`) y luego agrega; sale con código 3 si `validar_igualdad` falla. El tamaño fp16 para el desempate se estima convirtiendo `mejor.keras` (reutiliza `exportacion.convertir`, ver T048) o, si aún no existe, con `n_parametros × 2 bytes`.
-- [ ] T036 [P] [US2] Implementar en `src/avocadoia_modelo/figuras.py` la figura de comparación (barras de macro-F1 y recall por clase con barras de error por arquitectura) → `comparacion/<h>/figura_comparacion.png`.
-- [ ] T037 [US2] [COLAB] [MANUAL] Ejecutar `comparar --ejecutar` (6 corridas), `importar` y revisar `decision.json` (quickstart, escenario 5). Repetir una vez la corrida representativa de la arquitectura elegida y confirmar diferencia de macro-F1 de prueba ≤ 0,01 (SC-006; hallazgo A1).
+- [X] T033 [P] [US2] Escribir `tests/unit/test_modelo_seleccion.py`: agregación media ± desviación muestral con 3 corridas; regla: diferencia ≥ 0,02 → gana el mayor macro-F1 medio de **validación**; diferencia < 0,02 → gana el de menor tamaño fp16; corridas con `huella_config` o `huella_manifiesto` distintas → `ComparacionInvalida`; corridas `incompleta` se excluyen; menos de 3 corridas completas por arquitectura → `ComparacionInvalida`.
+- [X] T034 [US2] Implementar `src/avocadoia_modelo/seleccion.py` (research M12): `agregar(corridas)`, `validar_igualdad(corridas)`, `elegir(tabla, margen)`, `cumple_metas(metricas_test, metas)`; escribe `datos/modelo/comparacion/<huella_config8>/tabla.csv` y `decision.json` (arquitectura, corrida representativa = mayor val macro-F1 de esa arquitectura, regla aplicada, diferencia, cumplimiento de metas FR-015) (data-model.md §7).
+- [X] T035 [US2] Registrar `comparar [--ejecutar]` en `cli.py`: sin `--ejecutar` agrega las corridas existentes; con él lanza las corridas faltantes (2 arquitecturas × `entrenamiento.semillas`) y luego agrega; sale con código 3 si `validar_igualdad` falla. El tamaño fp16 para el desempate se estima convirtiendo `mejor.keras` (reutiliza `exportacion.convertir`, ver T048) o, si aún no existe, con `n_parametros × 2 bytes`.
+- [X] T036 [P] [US2] Implementar en `src/avocadoia_modelo/figuras.py` la figura de comparación (barras de macro-F1 y recall por clase con barras de error por arquitectura) → `comparacion/<h>/figura_comparacion.png`.
+- [X] T037 [US2] [COLAB] [MANUAL] (2026-11-11: 6 corridas del dataset 002 entrenadas en Colab e importadas; `comparar` → mobilenetv3 por desempate de tamaño fp16 (diferencia val 0,0036 < 0,02), representativa `20261110-2114_mobilenetv3_s43_09a3cdff`; su repetición `20261111-2305` dio macro-F1 de prueba idéntico (diferencia 0 ≤ 0,01, SC-006); ver `datos/modelo/comparacion/bde6ad25/`) Ejecutar `comparar --ejecutar` (6 corridas), `importar` y revisar `decision.json` (quickstart, escenario 5). Repetir una vez la corrida representativa de la arquitectura elegida y confirmar diferencia de macro-F1 de prueba ≤ 0,01 (SC-006; hallazgo A1).
 
 **Checkpoint**: arquitectura elegida con evidencia justa.
 
@@ -190,6 +190,13 @@ Proyecto único en la raíz de `Entregables`: `src/avocadoia_modelo/`, `tests/`,
 - [ ] T070 [COLAB] Entrenar con el dataset 002, calibrar, Grad-CAM++ y `evaluar-campo`; comparar v4 frente a 002 en la prueba de campo.
 - [ ] T071 [MANUAL] Resolver la auditoría de etiquetas de 002 (6 % > 2 %) y obtener la validación del agrónomo (muestra con kappa de Cohen).
 - [ ] T072 Informe de viabilidad de los datos (integridad, calidad de etiquetas, curva de aprendizaje, balance, sondas de atajo, distancia entrenamiento–campo).
+
+**Proceso y línea base (2026-11-11, research M21–M22)**
+
+- [X] T073 Declarar el proceso (DSR, CRISP-ML(Q), Spec Kit) y el sustento bibliográfico de cada decisión en research M21.
+- [X] T074 Implementar la línea base `cnn5` (CNN5 de Flores et al., 2026b, desde cero): `arquitecturas.construir("cnn5")` (1 700 418 parámetros con 2 salidas, verificado), `[linea_base]` en `config/modelo.toml` fuera de la huella, entrenamiento en una fase en `entrenamiento.py`, `entrenar --arquitectura cnn5`, `comparar` la reporta con diferencia de val y McNemar frente a la elegida sin entrar en la regla; celdas en el notebook; pruebas en `test_modelo_config.py` y `test_modelo_ml.py`.
+- [ ] T075 [COLAB] Entrenar `cnn5` con las semillas 42, 43 y 44; en el PC, `importar` y `comparar`; registrar en research M22 si la transferencia supera a la CNN propia (P1b).
+- [X] T076 (2026-11-11: T = 0,717; ECE val 0,0086 → 0,0054, test 0,0166 → 0,0187; no concluyentes en test 0,3 %) Calibrar la corrida representativa `20261110-2114_mobilenetv3_s43_09a3cdff`.
 
 ## Phase 9: Polish & Cross-Cutting Concerns
 

@@ -49,6 +49,16 @@ metodo = "LANCZOS-estirar"
 arquitecturas = ["mobilenetv3", "efficientnetb0"]
 dropout = 0.3
 
+# Línea base (research M22): CNN poco profunda entrenada desde cero, réplica de CNN5 de Flores et al. (2026b,
+# doi 10.3390/computers15080513) con salida de 3 clases. No compite en la regla de selección: se compara con la
+# arquitectura elegida. Esta sección NO entra en la huella de configuración (así las 6 corridas de la comparación
+# siguen siendo comparables); se guarda completa en el registro.json de cada corrida de línea base.
+[linea_base]
+arquitecturas = ["cnn5"]
+tasa = 1e-3          # Flores et al.: 0,001 desde cero
+epocas = 100         # Flores et al.: 100 épocas como máximo
+paciencia = 10       # desde cero converge más lento que con transferencia (parada temprana sobre val_loss)
+
 [fase1]
 tasa = 1e-3
 epocas = 15
