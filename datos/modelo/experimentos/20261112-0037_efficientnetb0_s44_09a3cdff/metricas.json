@@ -1,0 +1,208 @@
+{
+  "test": {
+    "exactitud": 0.9663608562691132,
+    "experimental": true,
+    "macro_f1": 0.9547786756513353,
+    "macro_f1_ic95": [
+      0.9216607634624328,
+      0.9803322435149033
+    ],
+    "matriz_confusion": [
+      [
+        144,
+        0,
+        1
+      ],
+      [
+        5,
+        138,
+        0
+      ],
+      [
+        5,
+        0,
+        34
+      ]
+    ],
+    "n": 327,
+    "por_clase": {
+      "antracnosis": {
+        "f1": 0.9822064056939501,
+        "precision": 1.0,
+        "recall": 0.965034965034965,
+        "recall_ic95": [
+          0.9322007742205481,
+          0.9924270691994572
+        ],
+        "soporte": 143
+      },
+      "pedunculo": {
+        "f1": 0.9189189189189189,
+        "precision": 0.9714285714285714,
+        "recall": 0.8717948717948718,
+        "recall_ic95": [
+          0.7450752393980848,
+          0.9714285714285714
+        ],
+        "soporte": 39
+      },
+      "sano": {
+        "f1": 0.9632107023411371,
+        "precision": 0.935064935064935,
+        "recall": 0.993103448275862,
+        "recall_ic95": [
+          0.9788732394366197,
+          1.0
+        ],
+        "soporte": 145
+      }
+    },
+    "por_fuente": {
+      "hass": {
+        "exactitud": 1.0,
+        "n": 80,
+        "recall": {
+          "sano": 1.0
+        }
+      },
+      "kaggle_antracnosis": {
+        "exactitud": 0.92,
+        "n": 50,
+        "recall": {
+          "antracnosis": 0.92
+        }
+      },
+      "mdpi_pedunculo": {
+        "exactitud": 0.8717948717948718,
+        "n": 39,
+        "recall": {
+          "pedunculo": 0.8717948717948718
+        }
+      },
+      "mdpi_pedunculo_sano": {
+        "exactitud": 0.9807692307692307,
+        "n": 52,
+        "recall": {
+          "sano": 0.9807692307692307
+        }
+      },
+      "rgb_antracnosis": {
+        "exactitud": 0.989247311827957,
+        "n": 93,
+        "recall": {
+          "antracnosis": 0.989247311827957
+        }
+      },
+      "rgb_sano": {
+        "exactitud": 1.0,
+        "n": 11,
+        "recall": {
+          "sano": 1.0
+        }
+      }
+    }
+  },
+  "val": {
+    "exactitud": 0.9848484848484849,
+    "experimental": true,
+    "macro_f1": 0.9756530202992671,
+    "macro_f1_ic95": [
+      0.9524958519143061,
+      0.9942207120336563
+    ],
+    "matriz_confusion": [
+      [
+        145,
+        0,
+        0
+      ],
+      [
+        1,
+        144,
+        0
+      ],
+      [
+        4,
+        0,
+        36
+      ]
+    ],
+    "n": 330,
+    "por_clase": {
+      "antracnosis": {
+        "f1": 0.9965397923875432,
+        "precision": 1.0,
+        "recall": 0.993103448275862,
+        "recall_ic95": [
+          0.975990243902439,
+          1.0
+        ],
+        "soporte": 145
+      },
+      "pedunculo": {
+        "f1": 0.9473684210526316,
+        "precision": 1.0,
+        "recall": 0.9,
+        "recall_ic95": [
+          0.7999074074074074,
+          0.9761904761904762
+        ],
+        "soporte": 40
+      },
+      "sano": {
+        "f1": 0.983050847457627,
+        "precision": 0.9666666666666667,
+        "recall": 1.0,
+        "recall_ic95": [
+          1.0,
+          1.0
+        ],
+        "soporte": 145
+      }
+    },
+    "por_fuente": {
+      "hass": {
+        "exactitud": 1.0,
+        "n": 81,
+        "recall": {
+          "sano": 1.0
+        }
+      },
+      "kaggle_antracnosis": {
+        "exactitud": 1.0,
+        "n": 51,
+        "recall": {
+          "antracnosis": 1.0
+        }
+      },
+      "mdpi_pedunculo": {
+        "exactitud": 0.9,
+        "n": 40,
+        "recall": {
+          "pedunculo": 0.9
+        }
+      },
+      "mdpi_pedunculo_sano": {
+        "exactitud": 1.0,
+        "n": 51,
+        "recall": {
+          "sano": 1.0
+        }
+      },
+      "rgb_antracnosis": {
+        "exactitud": 0.9893617021276596,
+        "n": 94,
+        "recall": {
+          "antracnosis": 0.9893617021276596
+        }
+      },
+      "rgb_sano": {
+        "exactitud": 1.0,
+        "n": 11,
+        "recall": {
+          "sano": 1.0
+        }
+      }
+    }
+  }
+}

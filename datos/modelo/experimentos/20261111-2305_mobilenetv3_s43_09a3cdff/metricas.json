@@ -1,0 +1,208 @@
+{
+  "test": {
+    "exactitud": 0.981651376146789,
+    "experimental": true,
+    "macro_f1": 0.9763763410053162,
+    "macro_f1_ic95": [
+      0.9526714948340352,
+      0.9931832453846293
+    ],
+    "matriz_confusion": [
+      [
+        145,
+        0,
+        0
+      ],
+      [
+        3,
+        140,
+        0
+      ],
+      [
+        3,
+        0,
+        36
+      ]
+    ],
+    "n": 327,
+    "por_clase": {
+      "antracnosis": {
+        "f1": 0.989399293286219,
+        "precision": 1.0,
+        "recall": 0.9790209790209791,
+        "recall_ic95": [
+          0.9513803904428904,
+          1.0
+        ],
+        "soporte": 143
+      },
+      "pedunculo": {
+        "f1": 0.9600000000000001,
+        "precision": 1.0,
+        "recall": 0.9230769230769231,
+        "recall_ic95": [
+          0.8235294117647058,
+          1.0
+        ],
+        "soporte": 39
+      },
+      "sano": {
+        "f1": 0.9797297297297297,
+        "precision": 0.9602649006622517,
+        "recall": 1.0,
+        "recall_ic95": [
+          1.0,
+          1.0
+        ],
+        "soporte": 145
+      }
+    },
+    "por_fuente": {
+      "hass": {
+        "exactitud": 1.0,
+        "n": 80,
+        "recall": {
+          "sano": 1.0
+        }
+      },
+      "kaggle_antracnosis": {
+        "exactitud": 0.98,
+        "n": 50,
+        "recall": {
+          "antracnosis": 0.98
+        }
+      },
+      "mdpi_pedunculo": {
+        "exactitud": 0.9230769230769231,
+        "n": 39,
+        "recall": {
+          "pedunculo": 0.9230769230769231
+        }
+      },
+      "mdpi_pedunculo_sano": {
+        "exactitud": 1.0,
+        "n": 52,
+        "recall": {
+          "sano": 1.0
+        }
+      },
+      "rgb_antracnosis": {
+        "exactitud": 0.978494623655914,
+        "n": 93,
+        "recall": {
+          "antracnosis": 0.978494623655914
+        }
+      },
+      "rgb_sano": {
+        "exactitud": 1.0,
+        "n": 11,
+        "recall": {
+          "sano": 1.0
+        }
+      }
+    }
+  },
+  "val": {
+    "exactitud": 0.990909090909091,
+    "experimental": true,
+    "macro_f1": 0.9836000177297106,
+    "macro_f1_ic95": [
+      0.9606600183616681,
+      1.0
+    ],
+    "matriz_confusion": [
+      [
+        145,
+        0,
+        0
+      ],
+      [
+        0,
+        145,
+        0
+      ],
+      [
+        3,
+        0,
+        37
+      ]
+    ],
+    "n": 330,
+    "por_clase": {
+      "antracnosis": {
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "recall_ic95": [
+          1.0,
+          1.0
+        ],
+        "soporte": 145
+      },
+      "pedunculo": {
+        "f1": 0.961038961038961,
+        "precision": 1.0,
+        "recall": 0.925,
+        "recall_ic95": [
+          0.8297742605085625,
+          1.0
+        ],
+        "soporte": 40
+      },
+      "sano": {
+        "f1": 0.9897610921501706,
+        "precision": 0.9797297297297297,
+        "recall": 1.0,
+        "recall_ic95": [
+          1.0,
+          1.0
+        ],
+        "soporte": 145
+      }
+    },
+    "por_fuente": {
+      "hass": {
+        "exactitud": 1.0,
+        "n": 81,
+        "recall": {
+          "sano": 1.0
+        }
+      },
+      "kaggle_antracnosis": {
+        "exactitud": 1.0,
+        "n": 51,
+        "recall": {
+          "antracnosis": 1.0
+        }
+      },
+      "mdpi_pedunculo": {
+        "exactitud": 0.925,
+        "n": 40,
+        "recall": {
+          "pedunculo": 0.925
+        }
+      },
+      "mdpi_pedunculo_sano": {
+        "exactitud": 1.0,
+        "n": 51,
+        "recall": {
+          "sano": 1.0
+        }
+      },
+      "rgb_antracnosis": {
+        "exactitud": 1.0,
+        "n": 94,
+        "recall": {
+          "antracnosis": 1.0
+        }
+      },
+      "rgb_sano": {
+        "exactitud": 1.0,
+        "n": 11,
+        "recall": {
+          "sano": 1.0
+        }
+      }
+    }
+  }
+}

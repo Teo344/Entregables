@@ -1,0 +1,208 @@
+{
+  "test": {
+    "exactitud": 0.9510703363914373,
+    "experimental": true,
+    "macro_f1": 0.9233848456305029,
+    "macro_f1_ic95": [
+      0.8782320026509501,
+      0.9597529646311665
+    ],
+    "matriz_confusion": [
+      [
+        144,
+        0,
+        1
+      ],
+      [
+        5,
+        138,
+        0
+      ],
+      [
+        10,
+        0,
+        29
+      ]
+    ],
+    "n": 327,
+    "por_clase": {
+      "antracnosis": {
+        "f1": 0.9822064056939501,
+        "precision": 1.0,
+        "recall": 0.965034965034965,
+        "recall_ic95": [
+          0.931232638888889,
+          0.9929577464788732
+        ],
+        "soporte": 143
+      },
+      "pedunculo": {
+        "f1": 0.8405797101449275,
+        "precision": 0.9666666666666667,
+        "recall": 0.7435897435897436,
+        "recall_ic95": [
+          0.6,
+          0.8800588235294117
+        ],
+        "soporte": 39
+      },
+      "sano": {
+        "f1": 0.9473684210526315,
+        "precision": 0.9056603773584906,
+        "recall": 0.993103448275862,
+        "recall_ic95": [
+          0.9774393369788106,
+          1.0
+        ],
+        "soporte": 145
+      }
+    },
+    "por_fuente": {
+      "hass": {
+        "exactitud": 1.0,
+        "n": 80,
+        "recall": {
+          "sano": 1.0
+        }
+      },
+      "kaggle_antracnosis": {
+        "exactitud": 0.94,
+        "n": 50,
+        "recall": {
+          "antracnosis": 0.94
+        }
+      },
+      "mdpi_pedunculo": {
+        "exactitud": 0.7435897435897436,
+        "n": 39,
+        "recall": {
+          "pedunculo": 0.7435897435897436
+        }
+      },
+      "mdpi_pedunculo_sano": {
+        "exactitud": 0.9807692307692307,
+        "n": 52,
+        "recall": {
+          "sano": 0.9807692307692307
+        }
+      },
+      "rgb_antracnosis": {
+        "exactitud": 0.978494623655914,
+        "n": 93,
+        "recall": {
+          "antracnosis": 0.978494623655914
+        }
+      },
+      "rgb_sano": {
+        "exactitud": 1.0,
+        "n": 11,
+        "recall": {
+          "sano": 1.0
+        }
+      }
+    }
+  },
+  "val": {
+    "exactitud": 0.9818181818181818,
+    "experimental": true,
+    "macro_f1": 0.9661777800865692,
+    "macro_f1_ic95": [
+      0.9356853591713981,
+      0.9887698580933876
+    ],
+    "matriz_confusion": [
+      [
+        145,
+        0,
+        0
+      ],
+      [
+        0,
+        145,
+        0
+      ],
+      [
+        5,
+        1,
+        34
+      ]
+    ],
+    "n": 330,
+    "por_clase": {
+      "antracnosis": {
+        "f1": 0.9965635738831615,
+        "precision": 0.9931506849315068,
+        "recall": 1.0,
+        "recall_ic95": [
+          1.0,
+          1.0
+        ],
+        "soporte": 145
+      },
+      "pedunculo": {
+        "f1": 0.9189189189189189,
+        "precision": 1.0,
+        "recall": 0.85,
+        "recall_ic95": [
+          0.7296683046683047,
+          0.9474021592442644
+        ],
+        "soporte": 40
+      },
+      "sano": {
+        "f1": 0.983050847457627,
+        "precision": 0.9666666666666667,
+        "recall": 1.0,
+        "recall_ic95": [
+          1.0,
+          1.0
+        ],
+        "soporte": 145
+      }
+    },
+    "por_fuente": {
+      "hass": {
+        "exactitud": 1.0,
+        "n": 81,
+        "recall": {
+          "sano": 1.0
+        }
+      },
+      "kaggle_antracnosis": {
+        "exactitud": 1.0,
+        "n": 51,
+        "recall": {
+          "antracnosis": 1.0
+        }
+      },
+      "mdpi_pedunculo": {
+        "exactitud": 0.85,
+        "n": 40,
+        "recall": {
+          "pedunculo": 0.85
+        }
+      },
+      "mdpi_pedunculo_sano": {
+        "exactitud": 1.0,
+        "n": 51,
+        "recall": {
+          "sano": 1.0
+        }
+      },
+      "rgb_antracnosis": {
+        "exactitud": 1.0,
+        "n": 94,
+        "recall": {
+          "antracnosis": 1.0
+        }
+      },
+      "rgb_sano": {
+        "exactitud": 1.0,
+        "n": 11,
+        "recall": {
+          "sano": 1.0
+        }
+      }
+    }
+  }
+}
